@@ -10,7 +10,6 @@ RUN apk add mongodb yaml-cpp=0.6.2-r2
 
 # Mongo setup
 RUN mkdir -p /data/db
-RUN mongod &
 
 # Using "concurrently" to run client & server simultaneously
 RUN npm i -g concurrently
@@ -30,6 +29,12 @@ WORKDIR /site
 RUN npm run install-both
 
 # Save status of volume (TODO: mongodb)
-VOLUME /site
+#VOLUME /site
 
-CMD [ "npm", "run", "both" ]
+USER root
+
+# Run mongod, node client, and node server simultaneously
+CMD [ "concurrently", "-n", "mongod,client,server",\
+  "mongod", \
+  "su nonroot -c \"npm run client\"", \
+  "su nonroot -c \"npm run server\""]
