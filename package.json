@@ -10,7 +10,7 @@
     "server-dev": "cd server && npm run server",
     "server": "cd server && npm run start",
     "client": "cd client && npm run start",
-    "both": "concurrently \"npm run client\" \"npm run server\"",
-    "dev": "concurrently \"npm run client\" \"npm run server-dev\""
+    "both": "concurrently -n client,server \"npm run client\" \"npm run server\"",
+    "dev": "concurrently -n client,server \"npm run client\" \"npm run server-dev\""
   }
 }
