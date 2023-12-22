@@ -96,6 +96,9 @@ export default function(game, vanilla, seedData, seed, sprites, spriteIndex, pal
   // Default sprite will be index 0, so don't need to alter sprite data here
   if (spriteIndex > 0) {
     let modifier = ''
+    if (sprites[spriteIndex].extendedRom) {
+      rom_array.push([0] * 0x4000 * 0x40)
+    }
     if (sprites[spriteIndex].separatePatches && game === "ooa"){
       modifier = 'ages/';
     }
