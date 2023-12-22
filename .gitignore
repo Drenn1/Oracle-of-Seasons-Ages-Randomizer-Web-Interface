@@ -20,5 +20,6 @@ nodemon.json
 /server/base/oracles-randomizer
 seedhelper.zip
 *.gbc
+*.sym
 *-log.gbc
 /clonedir
