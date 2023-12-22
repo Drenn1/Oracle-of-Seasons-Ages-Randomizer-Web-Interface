@@ -25,7 +25,7 @@ sudo ./start-docker.sh
 ```
 
 This will create a docker image based on the latest commit in the local
-repository and expose the randomizer UI on port 80. That's it!
+repository and expose the randomizer UI on port 80.
 
 
 ### Without docker
@@ -35,6 +35,11 @@ You will need [Nodejs](https://nodejs.org/en/) for the back and front end depend
 ```
 $ npm run install-both
 ```
+
+Also install "concurrently":
+
+$ sudo npm i -g concurrently
+
 
 #### Set up Base entries in DB
 You will need [Python](https://www.python.org/) for the db setup script, it is

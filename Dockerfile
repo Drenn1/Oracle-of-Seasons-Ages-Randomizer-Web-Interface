@@ -20,8 +20,10 @@ RUN /usr/sbin/adduser nonroot -h /home/nonroot -s /bin/sh -D
 
 # Copy clean clone of git repository to docker
 COPY clonedir /site
+COPY server/base/oracles-randomizer server/base/oo*.blob /site/server/base/
 RUN chown -R nonroot /site
 USER nonroot
+
 WORKDIR /site
 
 # Install node dependencies

@@ -15,8 +15,6 @@ catch(err){
 
 
 
-const Base = require('../models/Base');
-const Addr = require('../models/Addr');
 const OOS = require('../models/OOSSeed');
 const OOA = require('../models/OOASeed');
 const logParse = require('../utility/logparse');
@@ -27,38 +25,32 @@ const argsBase = ['-hard', '-treewarp', '-dungeons', '-portals'];
 function saveSeed(res, game, seedBase, romFile, files) {
   let seedCollection = game === 'oos' ? OOS : OOA;
   const rom = fs.readFileSync(romFile);
-  Addr.find({game: game})
-    .sort({date: -1})
-    .then(results =>{
-      const result = results[0];
-      const addrs = result.patchData;
-      Base.find({game: game, version: version})
-        .sort({date: -1})
-        .then(bases => {
-          // Base patch db entry needed so each seed has the correct fixes to the version if used after a new release
-          const base = bases[0];
-          const seedData = []
-          // Only need to read a few hundred bytes from generated rom that is seed specific compared to all 1,048,576 bytes of two rom files
-          addrs.forEach(offset =>{
-            bytePatch = {};
-            rom.readUInt8(offset);
-            bytePatch.offset = offset;
-            bytePatch.data = rom.readUInt8(offset);
-            seedData.push(bytePatch);
-          })
+  const origRom = fs.readFileSync(`./base/${game}.blob`);
 
-          const newSeed = new seedCollection(seedBase);
-          newSeed.base = base.id;
-          newSeed.patchData = seedData;
-          
-          newSeed.save().then( saved => { 
-            // Remove generated files and free some space 
-            files.forEach(file => fs.unlinkSync(file))                         
-            console.log("patch created");
-            return res.send(`/${game}/${newSeed.seed}`);
-          });                
-        });            
-    });  
+  const seedData = []
+
+  // Read changed data (TODO: make more efficient? Could have the
+  // randomizer output an IPS patch or something instead of checking
+  // every single byte in the ROM)
+  console.assert(rom.length == origRom.length);
+  for (let i=0; i<rom.length; i++) {
+    if (origRom.readUInt8(i) != rom.readUInt8(i)) {
+      bytePatch = {};
+      bytePatch.offset = i;
+      bytePatch.data = rom.readUInt8(i);
+      seedData.push(bytePatch);
+    }
+  }
+
+  const newSeed = new seedCollection(seedBase);
+  newSeed.patchData = seedData;
+
+  newSeed.save().then( saved => {
+    // Remove generated files and free some space
+    files.forEach(file => fs.unlinkSync(file))
+    console.log("patch created");
+    return res.send(`/${game}/${newSeed.seed}`);
+  });
 }
 
 router.get('/version', (req, res)=>{
@@ -193,41 +185,32 @@ router.get('/:game/:id', (req,res)=>{
       res.status(404).send("Seed not found");
   }
 
-  // If seed is found, grabs Base patch data, then appends Seed Specific patch data and sent as key "patch" in the response
   seedCollection.findOne({seed: req.params.id}).then(seed=>{
     if(seed){
-      Base.find({_id: seed.base})
-        .then(bases => {
-          const base = bases[0];
-          const patchData = base.patchData;
-          seed.patchData.forEach( bytePatch =>{
-            patchData.push(bytePatch);
-          })
-          const response = {
-            patch: patchData,
-            version: version,
-            hard: seed.hard,
-            treewarp: seed.treewarp,
-            dungeons: seed.dungeons,
-            locked: seed.locked,
-            spoiler: seed.spoiler,
-            genTime: seed.genTime,
-            timeout: seed.timeout,
-            unlockTime: seed.unlockTime,
-          }
-          if (game === "oos"){
-            response.portals = seed.portals
-          }
-          
-          const curTime = Math.floor((new Date).valueOf()/1000);
-          if (response.locked && response.genTime + response.timeout > curTime){
-            response.spoiler = {};
-          } else {
-            response.locked = false;
-          }
+      const response = {
+        patch: seed.patchData,
+        version: version,
+        hard: seed.hard,
+        treewarp: seed.treewarp,
+        dungeons: seed.dungeons,
+        locked: seed.locked,
+        spoiler: seed.spoiler,
+        genTime: seed.genTime,
+        timeout: seed.timeout,
+        unlockTime: seed.unlockTime,
+      }
+      if (game === "oos"){
+        response.portals = seed.portals
+      }
 
-          res.send(response);
-        });
+      const curTime = Math.floor((new Date).valueOf()/1000);
+      if (response.locked && response.genTime + response.timeout > curTime){
+        response.spoiler = {};
+      } else {
+        response.locked = false;
+      }
+
+      res.send(response);
     } else{
       res.send('unable to find seed');
     }
@@ -262,7 +245,6 @@ router.put('/:game/:id/:unlock', (req,res)=>{
       res.status(404).send("Seed not found");
   }
 
-  // If seed is found, grabs Base patch data, then appends Seed Specific patch data and sent as key "patch" in the response
   seedCollection.findOne({seed: id}).then(seed=>{
     if(seed){
       if (seed.unlockCode !== unlock){

@@ -66,11 +66,6 @@ const OOSSchema = new Schema({
   unlockCode: {
     type: String,
   },
-
-  base: {
-    type: Schema.Types.ObjectId,
-    ref: 'bases'
-  },
 });
 
 module.exports = mongoose.model('ooss', OOSSchema);
