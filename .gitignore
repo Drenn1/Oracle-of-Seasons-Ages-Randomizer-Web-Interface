@@ -17,7 +17,8 @@ nodemon.json
 /src/.cache
 .bashrc
 *.exe
-/base/oracles-randomizer
+/server/base/oracles-randomizer
 seedhelper.zip
 *.gbc
 *-log.gbc
+/clonedir

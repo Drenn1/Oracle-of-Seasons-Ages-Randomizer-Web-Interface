@@ -1,0 +1,16 @@
+{
+  "name": "oraclesrandosite-top",
+  "version": "1.0.0",
+  "description": "Web Interface for Zelda Oracles Randomizer",
+  "scripts": {
+    "install-server": "cd server && npm install",
+    "install-client": "cd client && npm install",
+    "install-both": "npm run install-server && npm run install-client",
+    "build-client": "cd client && npm run build",
+    "server-dev": "cd server && npm run server",
+    "server": "cd server && npm run start",
+    "client": "cd client && npm run start",
+    "both": "concurrently \"npm run client\" \"npm run server\"",
+    "dev": "concurrently \"npm run client\" \"npm run server-dev\""
+  }
+}

@@ -8,19 +8,21 @@ from Naked.toolshed.shell import execute_js
 if platform.system() == "Windows":
     oracles_randomizer_exe = "../base/oracles-randomizer.exe"
 else:
-    oracles_randomizer_exe = "../../base/oracles-randomizer"
+    oracles_randomizer_exe = "../base/oracles-randomizer"
 
 
 FNULL = open(os.devnull, 'w')
 start = time.time()
 
 # -LIVE will send to a live server, address stored in Environment Variable
-nodeArgs = '-{}'.format(input('Local or Live host?\n').upper())
-print(nodeArgs)
+#nodeArgs = '-{}'.format(input('Local or Live host?\n').upper())
+#print(nodeArgs)
+nodeArgs = "-local"
 
-romAsk = input("Make roms? (Y)es or (N)o\n").upper()
-makeroms = romAsk == "Y" or romAsk == "YES"
-print(makeroms)
+#romAsk = input("Make roms? (Y)es or (N)o\n").upper()
+#makeroms = romAsk == "Y" or romAsk == "YES"
+#print(makeroms)
+makeroms = True
 
 
 # can generate 1000 roms simultaneously faster than making as needed and checking if enough has been made to
@@ -53,7 +55,7 @@ if makeroms:
             args.append('-race')
         
         args.append('-noui')
-        args.append('../../base/oos.blob')
+        args.append('../base/oos.blob')
         makeseeds(args, "seasons")
         while threading.active_count() > 1:
             pass
@@ -73,7 +75,7 @@ if makeroms:
         while threading.active_count() > 1:
             pass
         args.append('-noui')
-        args.append('../../base/ooa.blob')
+        args.append('../base/ooa.blob')
         makeseeds(args, "ages")
         print("Ages batch {} done".format(ages + 1))
     print('Seed generation time: {} seconds'.format(time.time() - start))

@@ -5,13 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "install-both": "npm install && npm run client-install",
-    "client-build": "cd client && npm run build",
-    "client-install": "cd client && npm install",
-    "client": "cd client && npm run start",
-    "both": "concurrently \"npm run client\" \"npm run start\"",
-    "server": "nodemon index.js",
-    "dev": "concurrently \"npm run client\" \"npm run server\""
+    "server": "nodemon index.js"
   },
   "author": "JC",
   "license": "ISC",
