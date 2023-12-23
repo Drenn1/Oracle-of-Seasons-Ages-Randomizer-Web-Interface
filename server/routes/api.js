@@ -132,8 +132,8 @@ router.post('/randomize', (req,res)=>{
 
       // Breaks the filename into different segments [base, version, seed] and then remove flag chars
       const seed = romFile.split('_')[2].split('-')[0]
-      const args = execArgs.join('$');
-      const encodedSeed = seedHelper(`${seed}_${game}_${version}_${args}`);
+      const args = execArgs.map(s => s.substring(1)).join('-');
+      const encodedSeed = seedHelper(`${version}_${game}_${seed}_${args}`);
       const logFileData = fs.readFileSync(logFile, {encoding: 'utf8'});
       const parsedLog = logParse(logFileData, game);
       // const stringified = JSON.stringify(parsedLog);

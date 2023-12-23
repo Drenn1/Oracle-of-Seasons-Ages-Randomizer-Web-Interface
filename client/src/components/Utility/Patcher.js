@@ -1,7 +1,6 @@
 import Saver from 'file-saver';
 import {parseIPS} from './ParseIPS';
 import {readPointer,writePointer} from './RomHelper';
-import Flags from './Flags';
 
 const agesLinkObjectPaletteOffsets = [82446,82448,82450,82452,82454,82456,82458,82460,82462,82464];
 
@@ -64,7 +63,7 @@ function patchPaletteData(rom_array, paletteIndex, ages){
   }
 }
 
-function finalize(rom_array, flags){
+function finalize(rom_array, romName){
   // All patches applied. Recalculate rom checksum.
   var checksum = 0
   for (let i=0; i<rom_array.length; i++) {
@@ -77,15 +76,12 @@ function finalize(rom_array, flags){
   rom_array[0x14f] = checksum & 0xff;
 
   const finishedRom = new Blob([rom_array]);
-  Saver.saveAs(finishedRom, `${flags}.gbc`);
+  Saver.saveAs(finishedRom, `${romName}.gbc`);
 }
 
 export default function(game, vanilla, seedData, seed, sprites, spriteIndex, paletteIndex) {
-  const flags = Flags(game);
-  const flagData = [seedData.hard, seedData.crossitems, seedData.dungeons, seedData.portals || false];
-  const appendedFlags = flags.map(flag=>flag[0]).filter((flag,i)=>flagData[i]);
-  appendedFlags.unshift(game,'webrando',seed);
   const rom_array = new Uint8Array(vanilla);
+  const romName = 'webrando_' + seed;
 
   for (const [key, value] of Object.entries(seedData.patch)) {
     rom_array[Number(key)] = Number(value);
@@ -107,9 +103,9 @@ export default function(game, vanilla, seedData, seed, sprites, spriteIndex, pal
     fetch(`/sprites/patch/${modifier}${sprites[spriteIndex].name}.ips`)
       .then(res=>res.arrayBuffer().then(buffer=>{
         parseIPS(rom_array,buffer);
-        finalize(rom_array, appendedFlags.join('-'));
+        finalize(rom_array, romName);
       }))
   } else {
-    finalize(rom_array, appendedFlags.join('-'));
+    finalize(rom_array, romName);
   }
 }
