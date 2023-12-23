@@ -1,3 +1,6 @@
+# Docker image to run the server. oracles-randomizer-ng and the base roms must
+# be built before this.
+
 FROM alpine:3.19
 
 RUN apk update
@@ -18,15 +21,22 @@ RUN npm i -g concurrently
 RUN /usr/sbin/adduser nonroot -h /home/nonroot -s /bin/sh -D
 
 # Copy clean clone of git repository to docker
-COPY clonedir /site
+COPY clonedir/client /site/client
+COPY clonedir/server /site/server
+COPY clonedir/package.json /site/
 RUN chown -R nonroot /site
-USER nonroot
 WORKDIR /site
 
 # Install node dependencies
+USER nonroot
 RUN npm run install-both
 
-# Files not tracked in git
+# Copy only what we need from the submodules into docker (.gbc, .sym files, and
+# the randomizer itself)
+RUN mkdir -p oracles-randomizer-ng/oracles-disasm
+COPY oracles-randomizer-ng/oracles-disasm/seasons.gbc oracles-randomizer-ng/oracles-disasm/seasons.sym \
+  oracles-randomizer-ng/oracles-disasm/ages.gbc oracles-randomizer-ng/oracles-disasm/ages.sym \
+  oracles-randomizer-ng/oracles-randomizer-ng /site/oracles-randomizer-ng/
 COPY server/base/oracles-randomizer server/base/oo*.blob server/base/oo*.sym /site/server/base/
 
 # Save status of volume (TODO: mongodb)

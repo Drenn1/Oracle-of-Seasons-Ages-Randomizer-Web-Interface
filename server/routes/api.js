@@ -22,10 +22,13 @@ const logParse = require('../utility/logparse');
 const version = require('../base/version');
 const argsBase = ['-hard', '-treewarp', '-dungeons', '-portals'];
 
+const randoRoot = '../oracles-randomizer-ng/'
+
 function saveSeed(res, game, seedBase, romFile, files) {
   let seedCollection = game === 'oos' ? OOS : OOA;
+  const baseRomName = game === 'oos' ? 'seasons' : 'ages';
   const rom = fs.readFileSync(romFile);
-  const origRom = fs.readFileSync(`./base/${game}.blob`);
+  const origRom = fs.readFileSync(randoRoot + `oracles-disasm/${baseRomName}.gbc`);
 
   const seedData = []
 
@@ -77,10 +80,10 @@ router.post('/randomize', (req,res)=>{
   if (game !== 'oos' && game !== 'ooa') {
     return res.status(400).json({"nogame": "A valid game was not selected"});
   }
-  const randoRoot = './base/'
-  const randoName = process.env.OS == "Windows_NT" ? "oracles-randomizer.exe" : "oracles-randomizer";
+  const randoName = process.env.OS == "Windows_NT" ? "oracles-randomizer-ng.exe" : "oracles-randomizer-ng";
   const randoExec = randoRoot + randoName;
-  const gameFile = `${randoRoot}${game}.blob`;
+  const baseRomName = game === 'oos' ? 'seasons' : 'ages';
+  const gameFile = randoRoot + `oracles-disasm/${baseRomName}.gbc`
   const argsArray = [req.body.hardMode || false, req.body.treeWarp || false, req.body.dungeons || false, req.body.portals || false]
   const execArgs = argsBase.filter((arg, i) => {return argsArray[i]});
   const pass1 = execArgs.map(arg => arg);
