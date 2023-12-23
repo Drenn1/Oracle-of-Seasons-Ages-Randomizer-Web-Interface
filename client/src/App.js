@@ -20,7 +20,7 @@ class App extends Component {
     axios.get('/api/version')
       .then(res => {
         this.setState({
-          version: `v${res.data.version}`
+          version: `${res.data.version}`
         })
         
       })
@@ -35,7 +35,6 @@ class App extends Component {
               <Route exact path = "/randomize" component={Randomize} />
               <Route path = "/:game/:seed" component={Seed} />
             </div>
-            <Footer version={this.state.version}/>
         </div>
       </Router>
     );
