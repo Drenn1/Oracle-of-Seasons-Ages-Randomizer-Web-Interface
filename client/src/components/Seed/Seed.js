@@ -2,6 +2,8 @@
 
 import React, { Component } from 'react';
 import axios from 'axios';
+import Saver from 'file-saver';
+
 import {checkStore, getBuffer} from '../Utility/Storage';
 import Sprite from './Sprite';
 import Spinner from '../Spinner/Spinner';
@@ -32,6 +34,7 @@ class Seed extends Component {
     this.setSpoiler = this.setSpoiler.bind(this);
     this.setSprite = this.setSprite.bind(this);
     this.patchAndDownload = this.patchAndDownload.bind(this);
+    this.downloadLog = this.downloadLog.bind(this);
     this.setUnlockVisibility = this.setUnlockVisibility.bind(this);
     this.checkUnlockCode = this.checkUnlockCode.bind(this);
   }
@@ -42,6 +45,10 @@ class Seed extends Component {
 
   patchAndDownload(buffer, game, seed){
     Patcher(game,buffer,this.state.seedData,seed,this.state.sprites,this.state.sprite,this.state.palette)
+  }
+
+  downloadLog(buffer, game, seed) {
+    Saver.saveAs(new Blob([this.state.seedData.originalLog]), 'log.txt');
   }
 
   setOptions(gameTitle){
@@ -164,7 +171,10 @@ class Seed extends Component {
       titleText = `Fetching Oracle of ${gameTitle} Seed...`
     } else {
       const options = this.setOptions(gameTitle);
-      const spoilerLog = this.setSpoiler();
+
+      // TODO: Bring the spoiler log back when I'm sure it's working
+      //const spoilerLog = this.setSpoiler();
+      const spoilerLog = '';
 
       bodyContent = (
         <div className="card-body overflow-auto">   
@@ -177,7 +187,7 @@ class Seed extends Component {
                 </ul>
               </div>
             </div>
-            <div className="card">
+            <div className="card" style={{pointerEvents: "none", opacity: 0.4}}>
               <Sprite 
                 selectedSprite={this.state.sprite}
                 selectedPalette={this.state.palette}
@@ -190,11 +200,19 @@ class Seed extends Component {
           <div className="row my-5 px-4">
             <button
               type="button"
-              className="btn btn-primary btn-block col-3"
+              className="btn btn-primary col-2"
               disabled={!this.state.valid}
               onClick={e=>getBuffer(this.state.game, game, seed, this.patchAndDownload)}
             > 
                 Save Rom
+            </button>
+            <button
+              type="button"
+              className="btn btn-primary col-2 ml-2"
+              disabled={!this.state.valid}
+              onClick={e=>getBuffer(this.state.game, game, seed, this.downloadLog)}
+            >
+                Save Log
             </button>
             <FileSelect game={game === 'oos' ? 'Seasons' : 'Ages'} inline={true} checkGame={this.checkGame} valid={this.state.valid}/>
           </div>

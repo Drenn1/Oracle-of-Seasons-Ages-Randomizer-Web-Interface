@@ -150,6 +150,7 @@ router.post('/randomize', (req,res)=>{
         baseSeed: seed,
         options: req.body.options,
         spoiler: parsedLog,
+        originalLog: logFileData,
         locked: req.body.race || false,
         genTime: Math.floor((new Date).valueOf()/1000)
       }
@@ -196,6 +197,7 @@ router.get('/:game/:id', (req,res)=>{
   *   options: Array of options (keys for options.js)
   *   locked: Boolean if spoiler is available
   *   spoiler: Empty Object if locked, or Object containing spoiler data
+  *   originalLog: Raw log file data (TODO: redundant with spoiler)
   *   genTime: Timestring indicating when rom was made
   *   timeout: Number of seconds spoiler to remain locked from genTime
   *   unlockTime: Timestring indicating when seed got unlocked   
@@ -234,6 +236,7 @@ router.get('/:game/:id', (req,res)=>{
         options: seed.options,
         locked: seed.locked,
         spoiler: seed.spoiler,
+        originalLog: seed.originalLog,
         genTime: seed.genTime,
         timeout: seed.timeout,
         unlockTime: seed.unlockTime,

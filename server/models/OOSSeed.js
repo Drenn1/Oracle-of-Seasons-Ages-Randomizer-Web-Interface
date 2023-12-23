@@ -27,6 +27,11 @@ const OOSSchema = new Schema({
     required: true,
   },
 
+  originalLog: {
+    type: String,
+    required: true,
+  },
+
   locked: {
     type: Boolean,
     default: false,
