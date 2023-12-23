@@ -82,7 +82,7 @@ function finalize(rom_array, flags){
 
 export default function(game, vanilla, seedData, seed, sprites, spriteIndex, paletteIndex) {
   const flags = Flags(game);
-  const flagData = [seedData.hard, seedData.treewarp, seedData.dungeons, seedData.portals || false];
+  const flagData = [seedData.hard, seedData.crossitems, seedData.dungeons, seedData.portals || false];
   const appendedFlags = flags.map(flag=>flag[0]).filter((flag,i)=>flagData[i]);
   appendedFlags.unshift(game,'webrando',seed);
   const rom_array = new Uint8Array(vanilla);

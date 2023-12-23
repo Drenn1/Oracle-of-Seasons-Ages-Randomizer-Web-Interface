@@ -22,7 +22,7 @@ const OOASchema = new Schema({
     default: false
   },
 
-  treewarp: {
+  crossitems: {
     type: Boolean,
     default: false
   },

@@ -18,7 +18,7 @@ class Randomize extends Component {
     this.state = {
       game: "Seasons",
       hard: false,
-      treewarp: false,
+      crossitems: false,
       dungeons: false,
       portals: false,
       race: false,
@@ -92,7 +92,7 @@ class Randomize extends Component {
     const data = {
       game: this.state.game === "Seasons" ? 'oos' : 'ooa',
       hardMode: this.state.hard,
-      treeWarp: this.state.treewarp,
+      crossItems: this.state.crossitems,
       dungeons: this.state.dungeons,
       portals: this.state.portals,
       race: this.state.race,

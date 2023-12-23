@@ -20,7 +20,7 @@ const OOA = require('../models/OOASeed');
 const logParse = require('../utility/logparse');
 
 const version = require('../base/version');
-const argsBase = ['-hard', '-treewarp', '-dungeons', '-portals'];
+const argsBase = ['-hard', '-crossitems', '-dungeons', '-portals'];
 
 const randoRoot = '../oracles-randomizer-ng/';
 const baseRomDir = '../roms/';
@@ -93,7 +93,7 @@ router.post('/randomize', (req,res)=>{
   * Expects from req.body:
   *   game:          'oos' or 'ooa'  (just append ".blob" to get file to pass into randomizer)
   *   hardMode:      Boolean
-  *   treeWarp:      Boolean
+  *   crossItems:    Boolean
   *   dungeons:      Boolean
   *   portals:       Boolean
   *   race:          Boolean
@@ -112,7 +112,7 @@ router.post('/randomize', (req,res)=>{
   const randoExec = randoRoot + randoName;
   const baseRomName = game === 'oos' ? 'seasons' : 'ages';
   const gameFile = randoRoot + `oracles-disasm/${baseRomName}.gbc`
-  const argsArray = [req.body.hardMode || false, req.body.treeWarp || false, req.body.dungeons || false, req.body.portals || false]
+  const argsArray = [req.body.hardMode || false, req.body.crossItems || false, req.body.dungeons || false, req.body.portals || false]
   const execArgs = argsBase.filter((arg, i) => {return argsArray[i]});
   const pass1 = execArgs.map(arg => arg);
   // No log created with race flag. Create 1 pass normally to get a log file, then second pass add race and plan
@@ -141,7 +141,7 @@ router.post('/randomize', (req,res)=>{
         seed: encodedSeed,
         baseSeed: seed,
         hard: argsArray[0],
-        treewarp: argsArray[1],
+        crossitems: argsArray[1],
         dungeons: argsArray[2],
         spoiler: parsedLog,
         locked: req.body.race || false,
@@ -192,7 +192,7 @@ router.get('/:game/:id', (req,res)=>{
   *   patch: Array of {offset: patch data} objects
   *   version: String indicating version of randomizer used
   *   hard: Boolean indicating if hard mode was enabled
-  *   treewarp: Boolean indicating if treewarp was enabled
+  *   crossitems: Boolean indicating if cross-items was enabled
   *   dungeons: Boolean indicating if dungeon shuffle was enabled
   *   portals: Boolean indicating if subrosia portal was enabled
   *   locked: Boolean if spoiler is available
@@ -233,7 +233,7 @@ router.get('/:game/:id', (req,res)=>{
         patch: newPatch,
         version: version,
         hard: seed.hard,
-        treewarp: seed.treewarp,
+        crossitems: seed.crossitems,
         dungeons: seed.dungeons,
         locked: seed.locked,
         spoiler: seed.spoiler,
