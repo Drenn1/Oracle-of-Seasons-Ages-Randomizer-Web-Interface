@@ -5,18 +5,26 @@ const optionList = {
     name: "Cross-Items",
     desc: "Include Ages items in Seasons, and vice-versa."
   },
+  "keysanity": {
+    name: "Keysanity",
+    desc: "Dungeon keys, maps, compasses, and slates can be placed anywhere."
+  },
   "dungeons": {
     name: "Shuffle Dungeons",
     desc: "Dungeon entrance shuffle. No other entrances are shuffled."
-  },
-  "hard": {
-    name: "Hard Logic",
-    desc: "Requires more advanced knowledge and techniques concerning travel, alternate means of damagings enemies, getting seeds from locations other than trees, etc."
   },
   "portals": {
     name: "Shuffle Portals",
     desc: "Shuffle which portal in Holodrom leads to which portal in Subrosia.",
     game: "oos"
+  },
+  "hard": {
+    name: "Hard Logic",
+    desc: "Only recommended for speedrunners. Requires more advanced knowledge and techniques concerning travel, alternate means of damagings enemies, getting seeds from locations other than trees, etc."
+  },
+  "automermaid": {
+    name: "Auto Mermaid Suit",
+    desc: "Hold the direction button to move with the mermaid suit."
   },
 };
 
