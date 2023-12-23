@@ -22,7 +22,7 @@ sudo docker build -t assembler docker-assembler/ || exit 1
 sudo docker run --user $(id -u) --mount type=bind,src=$PWD/oracles-randomizer-ng/oracles-disasm,dst=/mnt assembler "make" || exit 1
 
 # Build the randomizer with the assembler image
-sudo docker run --user $(id -u) --mount type=bind,src=$PWD/oracles-randomizer-ng,dst=/mnt assembler "go generate; go build" || exit 1
+sudo docker run --user $(id -u) --mount type=bind,src=$PWD,dst=/mnt assembler "cd oracles-randomizer-ng && go generate && go build" || exit 1
 
 # Clone repository to ensure that everything is clean for docker (no untracked files)
 rm -Rf clonedir 2>/dev/null
