@@ -5,7 +5,7 @@ import {checkStore} from '../Utility/Storage';
 import Spinner from '../Spinner/Spinner';
 import uuid from 'uuid';
 import axios from 'axios';
-import flags from '../Utility/Flags';
+import Options from '../shared/options';
 
 const games = {
   oos: "Seasons",
@@ -17,10 +17,7 @@ class Randomize extends Component {
     super();
     this.state = {
       game: "Seasons",
-      hard: false,
-      crossitems: false,
-      dungeons: false,
-      portals: false,
+      options: Object.fromEntries(Object.keys(Options.get()).map((o) => [o, false])),
       race: false,
       valid: false,
       unlock: uuid.v4().replace(/-/g,''),
@@ -56,8 +53,10 @@ class Randomize extends Component {
 
   toggleCheck(e){
     e.preventDefault();
-    let newState = !this.state[e.target.id];
-    this.setState({[e.target.id]: newState});
+    const newOptions = {};
+    Object.assign(newOptions, this.state.options);
+    newOptions[e.target.id] = !this.state.options[e.target.id];
+    this.setState({options: newOptions});
   }
 
   toggleRace(e){
@@ -91,10 +90,7 @@ class Randomize extends Component {
     e.preventDefault()
     const data = {
       game: this.state.game === "Seasons" ? 'oos' : 'ooa',
-      hardMode: this.state.hard,
-      crossItems: this.state.crossitems,
-      dungeons: this.state.dungeons,
-      portals: this.state.portals,
+      options: this.state.options,
       race: this.state.race,
     }
 
@@ -136,9 +132,12 @@ class Randomize extends Component {
         <button className={cName} id={games[game]} key={game} value={game} onClick={this.selectGame}> {games[game]}</button>
       )
     })
-    const checkboxes = flags(this.state.game);
-  
-    const options = checkboxes.map(flag => (<CheckBox key={flag[0]} value={flag[0]} label={flag[1]} info={flag[2]} checked={this.state[flag[0]]} onCheck={this.toggleCheck}/>))
+    const checkboxes = [];
+    for (const [key, v] of Object.entries(Options.get(this.state.game))) {
+      checkboxes.push(
+        <CheckBox key={key} value={key} label={v.name} info={v.desc} checked={this.state.options[key]} onCheck={this.toggleCheck}/>
+      )
+    }
 
     let raceBody = (<div></div>);
 
@@ -180,7 +179,7 @@ class Randomize extends Component {
           <FileSelect game={this.state.game} checkGame={this.checkGame} valid={this.state.valid}></FileSelect>
         </div>
         <div className="row">
-          {options}
+          {checkboxes}
         </div>
         <div className="card mb-3">
           <div className="card-header">

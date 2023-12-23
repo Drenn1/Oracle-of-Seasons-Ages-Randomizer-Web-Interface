@@ -18,9 +18,9 @@ catch(err){
 const OOS = require('../models/OOSSeed');
 const OOA = require('../models/OOASeed');
 const logParse = require('../utility/logparse');
+const Options = require('../../shared/options')
 
 const version = require('../base/version');
-const argsBase = ['-hard', '-crossitems', '-dungeons', '-portals'];
 
 const randoRoot = '../oracles-randomizer-ng/';
 const baseRomDir = '../roms/';
@@ -92,10 +92,7 @@ router.post('/randomize', (req,res)=>{
   /*
   * Expects from req.body:
   *   game:          'oos' or 'ooa'  (just append ".blob" to get file to pass into randomizer)
-  *   hardMode:      Boolean
-  *   crossItems:    Boolean
-  *   dungeons:      Boolean
-  *   portals:       Boolean
+  *   options:       Array of options (keys for options.js)
   *   race:          Boolean
   * 
   * 
@@ -112,8 +109,20 @@ router.post('/randomize', (req,res)=>{
   const randoExec = randoRoot + randoName;
   const baseRomName = game === 'oos' ? 'seasons' : 'ages';
   const gameFile = randoRoot + `oracles-disasm/${baseRomName}.gbc`
-  const argsArray = [req.body.hardMode || false, req.body.crossItems || false, req.body.dungeons || false, req.body.portals || false]
-  const execArgs = argsBase.filter((arg, i) => {return argsArray[i]});
+
+  // Get options for execution arguments and seed string
+  execArgs = []
+  seedArgs = "";
+  for (const option of Object.keys(Options.get(game))) {
+    if (req.body.options[option]) {
+      execArgs.push("-" + option);
+      seedArgs += "-" + option;
+    }
+  }
+  if (seedArgs.length >= 1) {
+    seedArgs = seedArgs.substring(1);
+  }
+
   const pass1 = execArgs.map(arg => arg);
   // No log created with race flag. Create 1 pass normally to get a log file, then second pass add race and plan
   pass1.push('-noui', gameFile);
@@ -132,17 +141,14 @@ router.post('/randomize', (req,res)=>{
 
       // Breaks the filename into different segments [base, version, seed] and then remove flag chars
       const seed = romFile.split('_')[2].split('-')[0]
-      const args = execArgs.map(s => s.substring(1)).join('-');
-      const encodedSeed = seedHelper(`${version}_${game}_${seed}_${args}`);
+      const encodedSeed = seedHelper(`${version}_${game}_${seed}_${seedArgs}`);
       const logFileData = fs.readFileSync(logFile, {encoding: 'utf8'});
       const parsedLog = logParse(logFileData, game);
       // const stringified = JSON.stringify(parsedLog);
       const newSeedBase = {
         seed: encodedSeed,
         baseSeed: seed,
-        hard: argsArray[0],
-        crossitems: argsArray[1],
-        dungeons: argsArray[2],
+        options: req.body.options,
         spoiler: parsedLog,
         locked: req.body.race || false,
         genTime: Math.floor((new Date).valueOf()/1000)
@@ -150,10 +156,6 @@ router.post('/randomize', (req,res)=>{
       if (req.body.race){
         newSeedBase.unlockCode = req.body.unlockCode;
         newSeedBase.timeout = req.body.unlockTimeout;
-      }
-      
-      if (game === 'oos') {
-        newSeedBase.portals = argsArray[3];
       }
 
       // If race, use plan to make the race rom so seed info isn't shown
@@ -191,10 +193,7 @@ router.get('/:game/:id', (req,res)=>{
   * Returns an Object with the following keys:
   *   patch: Array of {offset: patch data} objects
   *   version: String indicating version of randomizer used
-  *   hard: Boolean indicating if hard mode was enabled
-  *   crossitems: Boolean indicating if cross-items was enabled
-  *   dungeons: Boolean indicating if dungeon shuffle was enabled
-  *   portals: Boolean indicating if subrosia portal was enabled
+  *   options: Array of options (keys for options.js)
   *   locked: Boolean if spoiler is available
   *   spoiler: Empty Object if locked, or Object containing spoiler data
   *   genTime: Timestring indicating when rom was made
@@ -232,17 +231,12 @@ router.get('/:game/:id', (req,res)=>{
       const response = {
         patch: newPatch,
         version: version,
-        hard: seed.hard,
-        crossitems: seed.crossitems,
-        dungeons: seed.dungeons,
+        options: seed.options,
         locked: seed.locked,
         spoiler: seed.spoiler,
         genTime: seed.genTime,
         timeout: seed.timeout,
         unlockTime: seed.unlockTime,
-      }
-      if (game === "oos"){
-        response.portals = seed.portals
       }
 
       const curTime = Math.floor((new Date).valueOf()/1000);

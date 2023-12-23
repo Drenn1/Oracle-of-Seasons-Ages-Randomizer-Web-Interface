@@ -17,21 +17,11 @@ const OOASchema = new Schema({
     required: true
   },
 
-  hard: {
-    type: Boolean,
-    default: false
+  options: {
+    type: Object,
+    required: true
   },
 
-  crossitems: {
-    type: Boolean,
-    default: false
-  },
-
-  dungeons: {
-    type: Boolean,
-    default: false,
-  },
-  
   spoiler: {
     type: Object,
     required: true

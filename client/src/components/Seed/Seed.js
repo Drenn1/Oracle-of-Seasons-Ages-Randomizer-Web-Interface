@@ -1,3 +1,5 @@
+// Post-generation window
+
 import React, { Component } from 'react';
 import axios from 'axios';
 import {checkStore, getBuffer} from '../Utility/Storage';
@@ -5,7 +7,7 @@ import Sprite from './Sprite';
 import Spinner from '../Spinner/Spinner';
 import FileSelect from '../Common/FileSelect';
 import Log from '../Log/Log';
-import flags from '../Utility/Flags';
+import Options from '../shared/options';
 import Patcher from '../Utility/Patcher';
 import './Seed.css';
 
@@ -43,11 +45,12 @@ class Seed extends Component {
   }
 
   setOptions(gameTitle){
-    return flags(gameTitle).map(flag=>{
+    const retData = [];
+    for (const [key, v] of Object.entries(Options.get(gameTitle))) {
       const liClass = ['list-group-item', 'text-white'];
       const iClass = ['fas', 'mr-2'];
       let toggled = "On"
-      if (this.state.seedData[flag[0]]){
+      if (this.state.seedData.options[key]){
         liClass.push('bg-success');
         iClass.push('fa-check');
       } else {
@@ -56,8 +59,9 @@ class Seed extends Component {
         toggled = "Off"
       }
 
-      return (<li key={flag[0]} className={liClass.join(' ')}><i className={iClass.join(' ')}></i> {flag[1]} {toggled}</li>)
-    })
+      retData.push(<li key={key} className={liClass.join(' ')}><i className={iClass.join(' ')}></i> {v.name} {toggled}</li>)
+    };
+    return retData;
   }
 
   setSpoiler() {

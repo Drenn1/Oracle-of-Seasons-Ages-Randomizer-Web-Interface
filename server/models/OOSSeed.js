@@ -17,24 +17,9 @@ const OOSSchema = new Schema({
     required: true
   },
 
-  hard: {
-    type: Boolean,
-    default: false
-  },
-
-  crossitems: {
-    type: Boolean,
-    default: false
-  },
-
-  dungeons: {
-    type: Boolean,
-    default: false,
-  },
-
-  portals: {
-    type: Boolean,
-    default: false,
+  options: {
+    type: Object,
+    required: true
   },
 
   spoiler: {
