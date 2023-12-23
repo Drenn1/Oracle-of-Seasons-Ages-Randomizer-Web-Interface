@@ -22,7 +22,13 @@ const logParse = require('../utility/logparse');
 const version = require('../base/version');
 const argsBase = ['-hard', '-treewarp', '-dungeons', '-portals'];
 
-const randoRoot = '../oracles-randomizer-ng/'
+const randoRoot = '../oracles-randomizer-ng/';
+const baseRomDir = '../roms/';
+
+const basePatches = {
+  'ooa': getBasePatch('ooa'),
+  'oos': getBasePatch('oos')
+};
 
 function saveSeed(res, game, seedBase, romFile, files) {
   let seedCollection = game === 'oos' ? OOS : OOA;
@@ -30,7 +36,7 @@ function saveSeed(res, game, seedBase, romFile, files) {
   const rom = fs.readFileSync(romFile);
   const origRom = fs.readFileSync(randoRoot + `oracles-disasm/${baseRomName}.gbc`);
 
-  const seedData = []
+  const seedData = new Map();
 
   // Read changed data (TODO: make more efficient? Could have the
   // randomizer output an IPS patch or something instead of checking
@@ -38,10 +44,7 @@ function saveSeed(res, game, seedBase, romFile, files) {
   console.assert(rom.length == origRom.length);
   for (let i=0; i<rom.length; i++) {
     if (origRom.readUInt8(i) != rom.readUInt8(i)) {
-      bytePatch = {};
-      bytePatch.offset = i;
-      bytePatch.data = rom.readUInt8(i);
-      seedData.push(bytePatch);
+      seedData.set(i.toString(), rom.readUInt8(i).toString());
     }
   }
 
@@ -53,7 +56,32 @@ function saveSeed(res, game, seedBase, romFile, files) {
     files.forEach(file => fs.unlinkSync(file))
     console.log("patch created");
     return res.send(`/${game}/${newSeed.seed}`);
+  })
+  .catch(err => {
+    console.log("Error saving seed to database:")
+    console.log(err);
   });
+}
+
+// Gets the patch data between a vanilla rom and the disassembly's generated ROM
+// (pre-randomized but with all code patches needed for rando).
+// This is really inefficient... should use something like BPS instead of
+// tracking individual byte changes...
+function getBasePatch(game) {
+  const baseRomName = game === 'oos' ? 'seasons' : 'ages';
+  const randoRom = fs.readFileSync(randoRoot + `oracles-disasm/${baseRomName}.gbc`);
+  const vanillaRom = fs.readFileSync(baseRomDir + `${baseRomName}_clean.gbc`);
+
+  const patchData = new Map();
+
+  console.assert(randoRom.length == vanillaRom.length);
+  for (let i=0; i<randoRom.length; i++) {
+    if (vanillaRom.readUInt8(i) != randoRom.readUInt8(i)) {
+      patchData.set(Number(i), Number(randoRom.readUInt8(i)));
+    }
+  }
+
+  return patchData;
 }
 
 router.get('/version', (req, res)=>{
@@ -190,8 +218,19 @@ router.get('/:game/:id', (req,res)=>{
 
   seedCollection.findOne({seed: req.params.id}).then(seed=>{
     if(seed){
+      // Merge base patch and seed-specific data into a single map
+      const basePatch = basePatches[game];
+      const newPatch = {};
+
+      for (const [key, value] of basePatch) {
+        newPatch[key] = value;
+      }
+      for (const [key, value] of Object.entries(seed.patchData)) {
+        newPatch[key] = value;
+      }
+
       const response = {
-        patch: seed.patchData,
+        patch: newPatch,
         version: version,
         hard: seed.hard,
         treewarp: seed.treewarp,

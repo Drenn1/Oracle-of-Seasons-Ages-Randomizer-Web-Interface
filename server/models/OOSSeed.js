@@ -13,7 +13,7 @@ const OOSSchema = new Schema({
   },
   
   patchData: {
-    type: Array,
+    type: Object,
     required: true
   },
 

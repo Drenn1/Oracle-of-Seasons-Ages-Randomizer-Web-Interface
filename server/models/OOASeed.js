@@ -13,7 +13,7 @@ const OOASchema = new Schema({
   },
 
   patchData: {
-    type: Array,
+    type: Object,
     required: true
   },
 

@@ -87,7 +87,9 @@ export default function(game, vanilla, seedData, seed, sprites, spriteIndex, pal
   appendedFlags.unshift(game,'webrando',seed);
   const rom_array = new Uint8Array(vanilla);
 
-  seedData.patch.forEach(bytePatch => rom_array[bytePatch.offset] = bytePatch.data)
+  for (const [key, value] of Object.entries(seedData.patch)) {
+    rom_array[Number(key)] = Number(value);
+  }
 
   if (paletteIndex > 0){
     patchPaletteData(rom_array, paletteIndex, game === "ooa");

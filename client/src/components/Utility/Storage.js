@@ -17,7 +17,7 @@ export function getBuffer(game, gamecode, seed, cb){
       cb(data,gamecode,seed);
     })
     .catch( err => {
-      console.log("error");
+      console.log(err);
     })
 }
 
@@ -27,7 +27,7 @@ export function checkStore(game, cb){
       cb(data);
     })
     .catch( err => {
-      console.log("error");
+      console.log(err);
     })
 }
 
