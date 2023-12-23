@@ -1,0 +1,3 @@
+[submodule "oracles-randomizer-ng"]
+	path = oracles-randomizer-ng
+	url = git@github.com:stewmath/oracles-randomizer-ng
