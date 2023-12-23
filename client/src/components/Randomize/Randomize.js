@@ -185,7 +185,6 @@ class Randomize extends Component {
           <div className="card-header">
             <div className="custom-control custom-switch">
               <input type="checkbox" name="" id="race" onClick={this.toggleRace} className="custom-control-input"></input>
-              <label htmlFor="race" className="custom-control-label"><span className="font-weight-bolder">Race?</span>  Disables immediate access to the spoiler log, which will become available until you enter in the unlock code or after a specified duration after seed generation.</label>
             </div>
           </div>  
           {raceBody}
