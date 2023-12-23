@@ -11,15 +11,18 @@
 # - The web interface docker image takes a clean git clone of the repository and
 #   uses that. This means you need to commit your changes before docker will
 #   pick it up. Might change this later. (Doesn't apply to disasm, randomizer)
+# - Run this as whatever user owns the repository, not as root.
+
+sudo echo "Got superuser access" || exit 1
 
 # Build the assembler image
-docker build -t assembler docker-assembler/
+sudo docker build -t assembler docker-assembler/ || exit 1
 
 # Build the disassembly with the assembler image
-docker run --user $(id -u) --mount type=bind,src=$PWD/oracles-randomizer-ng/oracles-disasm,dst=/mnt assembler "make"
+sudo docker run --user $(id -u) --mount type=bind,src=$PWD/oracles-randomizer-ng/oracles-disasm,dst=/mnt assembler "make" || exit 1
 
 # Build the randomizer with the assembler image
-docker run --user $(id -u) --mount type=bind,src=$PWD/oracles-randomizer-ng,dst=/mnt assembler "go generate; go build"
+sudo docker run --user $(id -u) --mount type=bind,src=$PWD/oracles-randomizer-ng,dst=/mnt assembler "go generate; go build" || exit 1
 
 # Clone repository to ensure that everything is clean for docker (no untracked files)
 rm -Rf clonedir 2>/dev/null
@@ -28,15 +31,17 @@ git clone . clonedir || exit 1
 rm -Rf clonedir/.git || exit 1
 
 # Build docker image
-docker build -t rando . || exit 1
+sudo docker build -t rando . || exit 1
+
+rm -Rf clonedir || exit 1
 
 # Remove docker container if it exists already
-docker stop rando 2>/dev/null
-docker rm rando 2>/dev/null
+sudo docker stop rando 2>/dev/null
+sudo docker rm rando 2>/dev/null
 
 # Create new container mounting the cloned version of the repo
-docker create --name rando -p 80:3000 rando
+sudo docker create --name rando -p 80:3000 rando
 
 [[ $? != 0 ]] && exit 1
 
-docker start rando
+sudo docker start rando

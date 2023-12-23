@@ -23,6 +23,7 @@ RUN /usr/sbin/adduser nonroot -h /home/nonroot -s /bin/sh -D
 # Copy clean clone of git repository to docker
 COPY clonedir/client /site/client
 COPY clonedir/server /site/server
+COPY clonedir/shared /site/shared
 COPY clonedir/package.json /site/
 RUN chown -R nonroot /site
 WORKDIR /site
@@ -36,8 +37,9 @@ RUN npm run install-both
 RUN mkdir -p oracles-randomizer-ng/oracles-disasm
 COPY oracles-randomizer-ng/oracles-disasm/seasons.gbc oracles-randomizer-ng/oracles-disasm/seasons.sym \
   oracles-randomizer-ng/oracles-disasm/ages.gbc oracles-randomizer-ng/oracles-disasm/ages.sym \
-  oracles-randomizer-ng/oracles-randomizer-ng /site/oracles-randomizer-ng/
-COPY server/base/oracles-randomizer server/base/oo*.blob server/base/oo*.sym /site/server/base/
+  /site/oracles-randomizer-ng/oracles-disasm/
+COPY oracles-randomizer-ng/oracles-randomizer-ng /site/oracles-randomizer-ng/
+COPY roms/ages_clean.gbc roms/seasons_clean.gbc /site/roms/
 
 # Save status of volume (TODO: mongodb)
 #VOLUME /site
