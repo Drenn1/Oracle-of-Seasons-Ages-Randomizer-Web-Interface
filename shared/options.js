@@ -15,7 +15,7 @@ const optionList = {
   },
   "portals": {
     name: "Shuffle Portals",
-    desc: "Shuffle which portal in Holodrom leads to which portal in Subrosia.",
+    desc: "Shuffle which portal in Holodrum leads to which portal in Subrosia.",
     game: "oos"
   },
   "hard": {
