@@ -18,14 +18,29 @@ doing any development, docker is recommended.
 
 Ensure docker is installed (obviously). This should be the only dependency.
 
+Download the repository:
+
+```
+git clone --recursive https://github.com/Stewmath/Oracle-of-Seasons-Ages-Randomizer-Web-Interface
+```
+
+Or if you've already downloaded it, ensure that all submodules are checked out:
+
+```
+git submodule update --init --recursive
+```
+
+Place the clean roms "ages_clean.gbc" and "seasons_clean.gbc" in the "roms/" directory.
+
 Start the server with:
 
 ```
 sudo ./start-docker.sh
 ```
 
-This will create a docker image based on the latest commit in the local
-repository and expose the randomizer UI on port 80.
+This will use docker containers to automatically build oracles-randomizer-ng and oracles-disasm (no
+need to install golang, wla-dx, etc). Then it will start the server in another docker container,
+exposed on port 80.
 
 
 ### Without docker
