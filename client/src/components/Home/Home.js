@@ -10,9 +10,9 @@ class Home extends Component {
             <h2 className="text-center">Web Interface</h2>
           </div>
           <div className="card-body">
-            <p>This site is simply an interface for the randomizer developed by Jangler. I take 0 credit in the actual programming of
-              the randomizer. This site was designed to be user-friendly and to be a quick and efficient way to share seeds without having to post a rom anywhere or having each player generate the seed locally.
+            <p>This site is an interface for oracles-randomizer-ng, Stewmat's fork of the oracles-randomizer supporting advanced features such as keysanity and cross-items. This site was designed to be user-friendly and to be a quick and efficient way to share seeds without having to post a rom anywhere or having each player generate the seed locally.
             </p>
+            <p>See the source code <a href="https://github.com/Stewmath/Oracle-of-Seasons-Ages-Randomizer-Web-Interface">here</a>.</p>
             <p>
               Note: No roms are hosted or downloaded from this site. It merely serves a patch to make the randomized game and your browser applies the patch to your base rom on download.
             </p>
