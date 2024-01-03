@@ -79,16 +79,12 @@ function finalize(rom_array, romName){
   Saver.saveAs(finishedRom, `${romName}.gbc`);
 }
 
-export default function(game, vanilla, seedData, seed, sprites, spriteIndex, paletteIndex) {
+export default function(game, vanilla, seedData, patchData, seed, sprites, spriteIndex, paletteIndex) {
   const rom_array = new Uint8Array(vanilla);
   const romName = 'webrando_' + seed;
 
-  for (const [key, value] of Object.entries(seedData.patch)) {
+  for (const [key, value] of Object.entries(patchData)) {
     rom_array[Number(key)] = Number(value);
-  }
-
-  if (paletteIndex > 0){
-    patchPaletteData(rom_array, paletteIndex, game === "ooa");
   }
 
   // Default sprite will be index 0, so don't need to alter sprite data here

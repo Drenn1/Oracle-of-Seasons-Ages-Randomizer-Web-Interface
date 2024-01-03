@@ -26,6 +26,10 @@ class Seed extends Component {
       unlock: false,
       unlockcode: '',
       unlocking: false,
+      cosmeticOptions: {
+        autoMermaid: true,
+        palette: 0,
+      }
     }
 
     this.setValid = this.setValid.bind(this);
@@ -44,7 +48,14 @@ class Seed extends Component {
   }
 
   patchAndDownload(buffer, game, seed){
-    Patcher(game,buffer,this.state.seedData,seed,this.state.sprites,this.state.sprite,this.state.palette)
+    axios.post(`/api/${game}/${seed}/patch`, this.cosmeticOptions)
+      .then(res => {
+        Patcher(game, buffer, this.state.seedData,
+                res.data.patch, seed, this.state.sprites,
+                this.state.sprite, this.state.palette);
+      }).catch(err =>{
+        console.log(err);
+      });
   }
 
   downloadLog(buffer, game, seed) {
@@ -176,24 +187,63 @@ class Seed extends Component {
       //const spoilerLog = this.setSpoiler();
       const spoilerLog = '';
 
+      const extraCheckboxMetadata = [
+        {
+          "name": "Auto Mermaid Suit",
+          "value": "autoMermaid",
+        }
+      ];
+
+      const miscCheckboxes = [];
+      for (const checkbox of extraCheckboxMetadata) {
+        const v =
+            <div className="form-check" key={checkbox.value}>
+            <input className="form-check-input"
+                   type="checkbox"
+                   checked={this.state.cosmeticOptions.autoMermaid}
+                   onChange={e => {
+                     const newOptions = {};
+                     Object.assign(newOptions, this.state.cosmeticOptions);
+                     newOptions[checkbox.value] = e.target.checked;
+                     this.setState({cosmeticOptions: newOptions});
+                   }}/>
+            <label className="form-check-label">Auto Mermaid Suit</label>
+          </div>
+        miscCheckboxes.push(v);
+      }
+
       bodyContent = (
-        <div className="card-body overflow-auto">   
+        <div className="container">
           <a href={`/${game}/${seed}`}>Shareable Link</a>
-          <div className="card-group">
-            <div className="card">
-              <div className="card-body">
-                <ul className="list-group list-group-flush">
-                  {options}
-                </ul>
+          <div className="row">
+            <div className="col-sm">
+              <div className="card">
+                <div className="card-body">
+                  <h3 className="card-title">Randomization options (fixed)</h3>
+                  <ul className="list-group list-group-flush" style={{opacity: 0.7}}>
+                    {options}
+                  </ul>
+                </div>
               </div>
             </div>
-            <div className="card" style={{pointerEvents: "none", opacity: 0.4}}>
-              <Sprite 
-                selectedSprite={this.state.sprite}
-                selectedPalette={this.state.palette}
-                sprites={this.state.sprites}
-                setSprite={this.setSprite}
-              />
+            <div className="col-sm">
+              <div className="card">
+                <div className="card-body">
+                  <h3 className="card-title">Cosmetic options</h3>
+                  <Sprite
+                    selectedSprite={this.state.sprite}
+                    selectedPalette={this.state.palette}
+                    sprites={this.state.sprites}
+                    setSprite={this.setSprite}
+                  />
+                </div>
+              </div>
+              <div className="card">
+                <div className="card-body">
+                  <h3 className="card-title">Other options</h3>
+                  {miscCheckboxes}
+                </div>
+              </div>
             </div>
           </div>
     

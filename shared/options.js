@@ -22,10 +22,6 @@ const optionList = {
     name: "Hard Logic",
     desc: "Only recommended for speedrunners. Requires more advanced knowledge and techniques concerning travel, alternate means of damagings enemies, getting seeds from locations other than trees, etc."
   },
-  "automermaid": {
-    name: "Auto Mermaid Suit",
-    desc: "Hold the direction button to move with the mermaid suit."
-  },
 };
 
 (function(exports){

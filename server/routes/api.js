@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const exec = require('child_process').execFile;
 const fs = require('fs');
+const readline = require('readline');
 
 // For encoding the seed string, returns original seed data if module not found (module not added to git)
 let seedHelper
@@ -30,11 +31,65 @@ const basePatches = {
   'oos': getBasePatch('oos')
 };
 
+const baseRandoRom = {
+  'ooa': readBaseRandoRom('ooa'),
+  'oos': readBaseRandoRom('oos'),
+}
+
+const symbolMaps = {
+  'ooa': loadSymbols(randoRoot + 'oracles-disasm/ages.gbc'),
+  'oos': loadSymbols(randoRoot + 'oracles-disasm/seasons.gbc')
+};
+
+// Helper function for gameboy pointer arithmetic
+function gbPointerToAddress(bank, pointer) {
+  console.assert(pointer >= 0 && pointer < 0x10000);
+
+  // RAM (ignore bank number, we'll probably never reference this anyway)
+  if (pointer >= 0x8000)
+    return pointer;
+  // ROM
+  else if (bank == 0) {
+    console.assert(pointer < 0x4000);
+    return pointer;
+  }
+  else {
+    console.assert(pointer >= 0x4000 && pointer < 0x8000);
+    return bank * 0x4000 + (pointer - 0x4000);
+  }
+}
+
+function loadSymbols(romFile) {
+  const symbolFile = romFile.slice(0, romFile.lastIndexOf('.')) + '.sym';
+  const fileContent = fs.readFileSync(symbolFile, 'utf-8');
+
+  var regex = /^([0-9a-f]{2}):([0-9a-f]{4}) (\S+)$/;
+  var symbolMap = {};
+
+  for (line of fileContent.split('\n')) {
+    if (m = regex.exec(line)) {
+      const bank = parseInt(m[1], 16);
+      const pointer = parseInt(m[2], 16);
+      const name = m[3];
+
+      const addr = gbPointerToAddress(bank, pointer);
+      symbolMap[name] = addr;
+    }
+  }
+
+  return symbolMap;
+}
+
+function readBaseRandoRom(game) {
+  const baseRomName = game === 'oos' ? 'seasons' : 'ages';
+  return fs.readFileSync(randoRoot + `oracles-disasm/${baseRomName}.gbc`);
+}
+
 function saveSeed(res, game, seedBase, romFile, files) {
   let seedCollection = game === 'oos' ? OOS : OOA;
   const baseRomName = game === 'oos' ? 'seasons' : 'ages';
   const rom = fs.readFileSync(romFile);
-  const origRom = fs.readFileSync(randoRoot + `oracles-disasm/${baseRomName}.gbc`);
+  const origRom = baseRandoRom[game];
 
   const seedData = new Map();
 
@@ -192,7 +247,6 @@ router.get('/:game/:id', (req,res)=>{
   * :id is the encoded seed id
   * 
   * Returns an Object with the following keys:
-  *   patch: Array of {offset: patch data} objects
   *   version: String indicating version of randomizer used
   *   options: Array of options (keys for options.js)
   *   locked: Boolean if spoiler is available
@@ -219,19 +273,7 @@ router.get('/:game/:id', (req,res)=>{
 
   seedCollection.findOne({seed: req.params.id}).then(seed=>{
     if(seed){
-      // Merge base patch and seed-specific data into a single map
-      const basePatch = basePatches[game];
-      const newPatch = {};
-
-      for (const [key, value] of basePatch) {
-        newPatch[key] = value;
-      }
-      for (const [key, value] of Object.entries(seed.patchData)) {
-        newPatch[key] = value;
-      }
-
       const response = {
-        patch: newPatch,
         version: version,
         options: seed.options,
         locked: seed.locked,
@@ -257,6 +299,99 @@ router.get('/:game/:id', (req,res)=>{
     console.log(err)
     res.send('unable to locate');
   })
+});
+
+router.post('/:game/:id/patch', (req,res)=>{
+  /*
+  * Expects from req.body:
+  *   options:       Array of post-randomization options
+  *
+  * Returns an Object with the following keys:
+  *   patch: Array of {offset: patch data} objects
+  */
+  const game = req.params.game;
+  let seedCollection;
+  switch (game){
+    case "ooa":
+      seedCollection = OOA;
+      break;
+    case "oos":
+      seedCollection = OOS;
+      break
+    default:
+      res.status(404).send("Seed not found");
+  }
+
+  seedCollection.findOne({seed: req.params.id}).then(seed=>{
+    if(seed) {
+      // Merge base patch and seed-specific data into a single map
+      const basePatch = basePatches[game];
+      const newPatch = {};
+
+      for (const [key, value] of basePatch) {
+        newPatch[key] = value;
+      }
+      for (const [key, value] of Object.entries(seed.patchData)) {
+        newPatch[key] = value;
+      }
+
+      // Post-randomization options
+      const options = req.body;
+      const symbols = symbolMaps[game];
+
+      const readRomByte = (addr) => {
+        if (addr in newPatch)
+          return newPatch[addr];
+        return baseRandoRom[game][addr];
+      };
+
+      // Careful not to overwrite randomization settings other than "auto mermaid suit" here
+      const randoConfigAddr = symbols['randoConfig'];
+      let randoConfig = readRomByte(randoConfigAddr);
+      randoConfig &= ~4;
+      if (options.autoMermaid) {
+        randoConfig |= 4;
+      }
+      newPatch[randoConfigAddr] = randoConfig;
+
+      // In-game palettes
+      // TODO: OAM fixes for harp, others
+      const paletteBaseAddr = symbols['specialObjectSetOamVariables@data'];
+      let palette = 0;
+      if (Object.hasOwn(options, 'palette') && options.palette >= 0 && options.palette <= 7) {
+        palette = options.palette;
+      }
+      for (let i=0; i<10; i++) {
+        a = paletteBaseAddr + i * 2 + 1;
+        b = readRomByte(a);
+        b |= palette;
+        newPatch[a] = b;
+      }
+
+      // File select palettes
+      // TODO: Doesn't work for palettes 4/5
+      const fsPaletteBaseAddr = symbols['fileSelectDrawLink@spriteTable'];
+      for (let i=0; i<16; i++) {
+        a = readRomByte(fsPaletteBaseAddr + i) + fsPaletteBaseAddr + i;
+        n = readRomByte(a);
+        a += 1;
+        for (let j=0; j<n; j++) {
+          b = readRomByte(a + 3);
+          b |= palette;
+          newPatch[a + 3] = b;
+          a += 4;
+        }
+      }
+
+      const response = {
+        patch: newPatch
+      };
+
+      res.send(response);
+    }}).catch(err => {
+      console.log(err)
+      res.send('unable to locate');
+    });
 });
 
 router.put('/:game/:id/:unlock', (req,res)=>{
