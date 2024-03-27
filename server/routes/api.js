@@ -129,9 +129,12 @@ function getBasePatch(game) {
 
   const patchData = new Map();
 
-  console.assert(randoRom.length == vanillaRom.length);
+  patchData.set('length', randoRom.length);
   for (let i=0; i<randoRom.length; i++) {
-    if (vanillaRom.readUInt8(i) != randoRom.readUInt8(i)) {
+    b = 0;
+    if (i < vanillaRom.length)
+      b = vanillaRom.readUInt8(i);
+    if (b != randoRom.readUInt8(i)) {
       patchData.set(Number(i), Number(randoRom.readUInt8(i)));
     }
   }
@@ -179,7 +182,8 @@ router.post('/randomize', (req,res)=>{
   }
 
   const pass1 = execArgs.map(arg => arg);
-  // No log created with race flag. Create 1 pass normally to get a log file, then second pass add race and plan
+  // No log created with race flag. Create 1 pass normally to get a log file,
+  // then second pass add race and plan
   pass1.push('-noui', gameFile);
   exec(randoExec, pass1, (err, out, stderr) => {
     if (err) {
@@ -342,7 +346,10 @@ router.post('/:game/:id/patch', (req,res)=>{
       const readRomByte = (addr) => {
         if (addr in newPatch)
           return newPatch[addr];
-        return baseRandoRom[game][addr];
+        else if (addr >= baseRandoRom[game].length)
+          return 0;
+        else
+          return baseRandoRom[game][addr];
       };
 
       // Careful not to overwrite randomization settings other than "auto mermaid suit" here

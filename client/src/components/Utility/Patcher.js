@@ -80,10 +80,14 @@ function finalize(rom_array, romName){
 }
 
 export default function(game, vanilla, seedData, patchData, seed, sprites, spriteIndex, paletteIndex) {
-  const rom_array = new Uint8Array(vanilla);
+  const rom_array = new Uint8Array(Number(patchData['length']));
+  rom_array.set(new Uint8Array(vanilla));
+
   const romName = 'webrando_' + seed;
 
   for (const [key, value] of Object.entries(patchData)) {
+    if (key === 'length')
+      continue;
     rom_array[Number(key)] = Number(value);
   }
 
