@@ -174,14 +174,16 @@ router.post('/randomize', (req,res)=>{
   seedArgs = "";
   for (const option of Object.keys(optionList)) {
     if (optionList[option].type === "combo") {
-      execArgs.push("-" + option)
       let value = String(req.body.options[option]);
       if (!optionList[option].values.includes(value)) {
         console.log(`WARNING: Value '${value}' for option '${option}' not valid`);
         value = optionList[option].values[0];
       }
-      execArgs.push(value);
-      seedArgs += `-${option}${value}`
+      if (value !== "off") {
+        execArgs.push("-" + option)
+        execArgs.push(value);
+        seedArgs += `-${option}${value}`
+      }
     }
     else if (req.body.options[option] === true) {
       execArgs.push("-" + option);
