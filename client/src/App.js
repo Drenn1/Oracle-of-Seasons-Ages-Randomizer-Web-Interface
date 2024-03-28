@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {BrowserRouter as Router, Route} from 'react-router-dom';
+import {BrowserRouter as Router, Route, Routes} from 'react-router-dom';
 import axios from 'axios';
 import Header from './components/Header/Header';
 import Footer from './components/Footer/Footer';
@@ -31,9 +31,11 @@ class App extends Component {
         <div className="App container-fluid">
             <Header />
             <div className="mb-4 page-container">
-              <Route exact path = "/" component={Home} />
-              <Route exact path = "/randomize" component={Randomize} />
-              <Route path = "/:game/:seed" component={Seed} />
+              <Routes>
+                <Route exact path = "/" Component={Home} />
+                <Route exact path = "/randomize" Component={Randomize} />
+                <Route path = "/:game/:seed" Component={Seed} />
+              </Routes>
             </div>
         </div>
       </Router>

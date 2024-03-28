@@ -1,9 +1,10 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import FileSelect from '../Common/FileSelect';
 import CheckBox from '../Common/CheckBox';
 import {checkStore} from '../Utility/Storage';
 import Spinner from '../Spinner/Spinner';
-import uuid from 'uuid';
+import {v4 as uuidv4} from 'uuid';
 import axios from 'axios';
 import Options from '../shared/options';
 
@@ -12,98 +13,73 @@ const games = {
   ooa: "Ages"
 }
 
-class Randomize extends Component {
-  constructor(){
-    super();
-    this.state = {
-      game: "Seasons",
-      options: Object.fromEntries(Object.keys(Options.get()).map((o) => [o, false])),
-      race: false,
-      valid: false,
-      unlock: uuid.v4().replace(/-/g,''),
-      timeout: 0,
-      generating: false,
-    };
-    this.validRom = false;
-    this.selectGame = this.selectGame.bind(this);
-    this.setValid = this.setValid.bind(this);
-    this.toggleCheck = this.toggleCheck.bind(this);
-    this.toggleRace = this.toggleRace.bind(this);
-    this.checkGame = this.checkGame.bind(this);
-    this.generate = this.generate.bind(this);
-    this.setTimeout = this.setTimeout.bind(this);
-    this.copyUnlockToClipboard = this.copyUnlockToClipboard.bind(this);
+function Randomize() {
+  const navigate = useNavigate();
+
+  function initialOptionsState() {
+    return Object.fromEntries(Object.keys(Options.get()).map((o) => [o, false]));
   }
 
-  selectGame(e){
-    this.setState({
-      game: games[e.target.value]
-    })
+  const [game, setGame] = useState('Seasons');
+  const [options, setOptions] = useState(initialOptionsState());
+  const [race, setRace] = useState(false);
+  const [valid, setValid] = useState(false);
+  const [unlock, setUnlock] = useState(uuidv4().replace(/-/g,''));
+  const [timeout, setTimeout] = useState(0);
+  const [generating, setGenerating] = useState(false);
+
+  function selectGame(e){
+    setGame(e.target.value);
   }
 
-  checkGame(){
-    checkStore(this.state.game || "Seasons", this.setValid);
+  function checkGame(){
+    checkStore(game || "Seasons", setValid);
   }
 
-  setValid(valid){
-    this.setState({
-      valid: valid
-    })
-  }
-
-  toggleCheck(e){
+  function toggleCheck(e){
     e.preventDefault();
     const newOptions = {};
-    Object.assign(newOptions, this.state.options);
-    newOptions[e.target.id] = !this.state.options[e.target.id];
-    this.setState({options: newOptions});
+    Object.assign(newOptions, options);
+    newOptions[e.target.id] = !options[e.target.id];
+    setOptions(newOptions);
   }
 
-  toggleRace(e){
-    let bool = e.target.checked;
-    this.setState({
-      race: bool
-    })
+  function toggleRace(e){
+    setRace(e.target.checked);
   }
 
-  setTimeout(e){
-    this.setState({
-      timeout: parseInt(e.target.value)
-    });
-  }
-
-  copyUnlockToClipboard(e){
+  function copyUnlockToClipboard(e){
     e.preventDefault();
     const tempEl = document.createElement("textarea");
     document.body.appendChild(tempEl);
-    tempEl.value = this.state.unlock;
+    tempEl.value = unlock;
     tempEl.select();
     document.execCommand('copy');
     document.body.removeChild(tempEl);
   }
 
-  generate(e){
-    this.setState({
-      generating: true
-    });
-    
+  function generate(e){
+    setGenerating(true);
+
     e.preventDefault()
     const data = {
-      game: this.state.game === "Seasons" ? 'oos' : 'ooa',
-      options: this.state.options,
-      race: this.state.race,
+      game: game === "Seasons" ? 'oos' : 'ooa',
+      options: options,
+      race: race,
     }
 
-    if (this.state.race) {
-      data.unlockCode = this.state.unlock;
-      data.unlockTimeout = this.state.timeout === 0 ? 14400 : this.state.timeout * 60;
+    if (race) {
+      data.unlockCode = unlock;
+      data.unlockTimeout = timeout === 0 ? 14400 : timeout * 60;
     }
 
     axios.post('/api/randomize', data)
-      .then(res => this.props.history.push(res.data))
+      .then(res => navigate(res.data))
       .catch(err => console.log(err))
   }
 
+// TODO
+/*
   componentDidMount(){
     this.checkGame();
   }
@@ -113,11 +89,12 @@ class Randomize extends Component {
       this.checkGame();
     }
   }
+  */
 
-  render() {
-    let gameToggle = Object.keys(games).map((game,i) => {
+  function render() {
+    let gameToggle = Object.keys(games).map((g,i) => {
       let cName = "btn";
-      if (games[game] === this.state.game){
+      if (games[g] === game){
         cName += " btn-info"
       } else {
         cName += " btn-secondary"
@@ -129,28 +106,28 @@ class Randomize extends Component {
         cName += " rounded-right"
       }
       return (
-        <button className={cName} id={games[game]} key={game} value={game} onClick={this.selectGame}> {games[game]}</button>
+        <button className={cName} id={games[g]} key={g} value={games[g]} onClick={selectGame}> {games[g]}</button>
       )
     })
     const checkboxes = [];
-    for (const [key, v] of Object.entries(Options.get(this.state.game))) {
+    for (const [key, v] of Object.entries(Options.get(game))) {
       checkboxes.push(
-        <CheckBox key={key} value={key} label={v.name} info={v.desc} checked={this.state.options[key]} onCheck={this.toggleCheck}/>
+        <CheckBox key={key} value={key} label={v.name} info={v.desc} checked={options[key]} onCheck={toggleCheck}/>
       )
     }
 
     let raceBody = (<div></div>);
 
-    if (this.state.race){
+    if (race){
       raceBody = (
         <div className="card-body">    
           <div className="row">
             <div className="col">
               <h6>Unlock Code</h6>
               <div className="input-group">
-                <div className="form-control">{this.state.unlock}</div>
+                <div className="form-control">{unlock}</div>
                 <div className="input-group-append">
-                  <button className="btn btn-primary" onClick={this.copyUnlockToClipboard}><i className="fas fa-copy mr-2"></i>Copy to Clipboard</button>
+                  <button className="btn btn-primary" onClick={copyUnlockToClipboard}><i className="fas fa-copy mr-2"></i>Copy to Clipboard</button>
                 </div>
               </div>
               <small className="text-black-50 mt-3">Needed to unlock the spoiler sooner. Note: once you generate the seed, you will NOT have access to this code, so please copy this first, otherwise you will have to wait the specified time before the log is available.</small>
@@ -158,7 +135,8 @@ class Randomize extends Component {
             <div className="col">
               <div className="form-group">
                 <h6>Spoiler Lock Duration</h6>
-                <input type="number" name="timeout" id="timeout" className="form-control" onChange={this.setTimeout} placeholder="0" min="0"/>
+                <input type="number" name="timeout" id="timeout" className="form-control"
+                       onChange={(e) => setTimeout(parseInt(e.target.value))} placeholder="0" min="0"/>
               </div>             
               <small className="text-black-50 mt-3">How long in minutes before the spoiler unlocks (default: 240 minutes = 4 hours)</small>
             </div>
@@ -167,7 +145,7 @@ class Randomize extends Component {
       )
     }
 
-    const header = this.state.generating ? `Making Oracle of ${this.state.game} Seed` : `Randomize Oracle of ${this.state.game}`
+    const header = generating ? `Making Oracle of ${game} Seed` : `Randomize Oracle of ${game}`
     let randoBody = (
       <div className="card-body">
         <div className="row mb-2">
@@ -176,7 +154,7 @@ class Randomize extends Component {
               {gameToggle}
             </div>
           </div>
-          <FileSelect game={this.state.game} checkGame={this.checkGame} valid={this.state.valid}></FileSelect>
+          <FileSelect game={game} checkGame={checkGame} valid={valid}></FileSelect>
         </div>
         <div className="row">
           {checkboxes}
@@ -184,16 +162,16 @@ class Randomize extends Component {
         <div className="card mb-3">
           <div className="card-header">
             <div className="custom-control custom-switch">
-              <input type="checkbox" name="" id="race" onClick={this.toggleRace} className="custom-control-input"></input>
+              <input type="checkbox" name="" id="race" onClick={toggleRace} className="custom-control-input"></input>
             </div>
           </div>  
           {raceBody}
         </div>
-        <button className="btn btn-primary btn-lg btn-block" disabled={!this.state.valid} onClick={this.generate}>Randomize {this.state.game}</button>
+        <button className="btn btn-primary btn-lg btn-block" disabled={!valid} onClick={generate}>Randomize {game}</button>
       </div>
     )
 
-    if (this.state.generating){
+    if (generating){
       randoBody = (
         <div className="card-body">
           <Spinner />
@@ -212,6 +190,8 @@ class Randomize extends Component {
       </div>
     )
   }
+
+  return render();
 }
 
 export default Randomize;
