@@ -3,9 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import Form from 'react-bootstrap/Form';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';
+import Container from 'react-bootstrap/Container';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
 
 import FileSelect from '../Common/FileSelect';
-import CheckBox from '../Common/CheckBox';
 import {checkStore} from '../Utility/Storage';
 import Spinner from '../Spinner/Spinner';
 import {v4 as uuidv4} from 'uuid';
@@ -20,7 +22,8 @@ const games = {
 function Randomize() {
   const navigate = useNavigate();
 
-  const initialOptionsState = Object.fromEntries(Object.keys(Options.get()).map((o) => [o, false]));
+  const initialOptionsState = Object.fromEntries(Object.entries(Options.get()).map(
+    ([k, o]) => [k, o.type === "combo" ? o.values[0] : false]))
 
   const [game, _setGame] = useState('Seasons');
   const [options, setOptions] = useState(initialOptionsState);
@@ -104,18 +107,42 @@ function Randomize() {
                 onClick={(e) => setGame(e.target.value)}> {games[g]}</button>
       )
     })
-    const checkboxes = [];
-    for (const [key, v] of Object.entries(Options.get(game))) {
-      checkboxes.push(
-        <Form>
-          <Form.Check type="switch" id={key} >
-            <Form.Check.Input checked={options[key]} onChange={onCheckboxChange} />
-            <OverlayTrigger placement="right" overlay={<Tooltip id={"tooltip-"+v.name}>{v.desc}</Tooltip>}>
-              <Form.Check.Label>{v.name}</Form.Check.Label>
-            </OverlayTrigger>
+    const optionComponents = [];
+    for (const [optName, opt] of Object.entries(Options.get(game))) {
+      var component;
+      if (opt.type === "combo") { // Dropdown
+        component =
+          <Form.Select value={options[optName]}
+                       onChange={(e) => {
+                         const newOptions = {};
+                         Object.assign(newOptions, options);
+                         newOptions[optName] = e.target.value;
+                         setOptions(newOptions);
+                       }}>
+            {opt.values.map(
+              (value) =>
+              <option
+                key={optName + '-' + value}>
+                {value}
+              </option>
+            )}
+          </Form.Select>
+      }
+      else { // Checkbox
+        component =
+          <Form.Check key={optName} type="switch" id={optName} >
+            <Form.Check.Input checked={options[optName]} onChange={onCheckboxChange} />
           </Form.Check>
-        </Form>
-      )
+      }
+
+      optionComponents.push(
+        <Row key={optName}>
+          <OverlayTrigger placement="right" overlay={<Tooltip id={"tooltip-"+opt.name}>{opt.desc}</Tooltip>}>
+            <Col style={{'textAlign': 'right', 'marginTop': 'auto', 'marginBottom': 'auto'}}>{opt.name}</Col>
+          </OverlayTrigger>
+          <Col>{component}</Col>
+        </Row>
+      );
     }
 
     let raceBody = (<div></div>);
@@ -159,7 +186,9 @@ function Randomize() {
           <FileSelect game={game} checkGame={checkGame} valid={valid}></FileSelect>
         </div>
         <div className="row">
-          {checkboxes}
+          <Container style={{'maxWidth': '300px', 'marginLeft': '0'}}>
+            {optionComponents}
+          </Container>
         </div>
         <div className="card mb-3">
           <div className="card-header">

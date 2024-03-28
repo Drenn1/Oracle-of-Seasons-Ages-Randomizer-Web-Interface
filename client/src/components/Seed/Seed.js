@@ -39,7 +39,7 @@ class Seed extends Component {
 
     this.setValid = this.setValid.bind(this);
     this.checkGame = this.checkGame.bind(this);
-    this.setOptions = this.setOptions.bind(this);
+    this.getOptionsDisplay = this.getOptionsDisplay.bind(this);
     this.setSpoiler = this.setSpoiler.bind(this);
     this.setSprite = this.setSprite.bind(this);
     this.patchAndDownload = this.patchAndDownload.bind(this);
@@ -67,22 +67,39 @@ class Seed extends Component {
     Saver.saveAs(new Blob([this.state.seedData.originalLog]), 'log.txt');
   }
 
-  setOptions(gameTitle){
+  getOptionsDisplay(gameTitle){
     const retData = [];
-    for (const [key, v] of Object.entries(Options.get(gameTitle))) {
+    for (const [optID, opt] of Object.entries(Options.get(gameTitle))) {
       const liClass = ['list-group-item', 'text-white'];
       const iClass = ['fas', 'mr-2'];
-      let toggled = "On"
-      if (this.state.seedData.options[key]){
-        liClass.push('bg-success');
-        iClass.push('fa-check');
-      } else {
-        liClass.push('bg-danger');
-        iClass.push('fa-times');
-        toggled = "Off"
+
+      var value;
+
+      if (opt.type === "combo") {
+        value = this.state.seedData.options[optID];
+      }
+      else { // boolean
+        if (this.state.seedData.options[optID]){
+          value = "on";
+        } else {
+          value = "off"
+        }
       }
 
-      retData.push(<li key={key} className={liClass.join(' ')}><i className={iClass.join(' ')}></i> {v.name} {toggled}</li>)
+      if (value === "off") {
+        liClass.push('bg-danger');
+        iClass.push('fa-times');
+      }
+      else {
+        liClass.push('bg-success');
+        iClass.push('fa-check');
+      }
+
+      retData.push(
+        <li key={optID} className={liClass.join(' ')}>
+          <i className={iClass.join(' ')}></i>
+          {`${opt.name}: ${value}`}
+        </li>)
     };
     return retData;
   }
@@ -186,7 +203,7 @@ class Seed extends Component {
       bodyContent = (<div className="card-body"><Spinner /></div>)
       titleText = `Fetching Oracle of ${gameTitle} Seed...`
     } else {
-      const options = this.setOptions(gameTitle);
+      const options = this.getOptionsDisplay(gameTitle);
 
       // TODO: Bring the spoiler log back when I'm sure it's working
       //const spoilerLog = this.setSpoiler();
