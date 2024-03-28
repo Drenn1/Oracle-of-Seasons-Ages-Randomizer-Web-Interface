@@ -160,12 +160,6 @@ class Seed extends Component {
       })
   }
 
-  componentWillMount(){
-    if (!["oos", "ooa"].includes(this.props.router.params.game)){
-      this.props.history.push('/randomize');
-    }
-  }
-
   componentDidMount(){
     const {game, seed} = this.props.router.params;
     const storageLabel = game === 'oos' ? 'Seasons' : 'Ages';

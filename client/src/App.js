@@ -17,7 +17,7 @@ class App extends Component {
     };
   }
 
-  componentWillMount(){
+  componentDidMount(){
     axios.get('/api/version')
       .then(res => {
         this.setState({
