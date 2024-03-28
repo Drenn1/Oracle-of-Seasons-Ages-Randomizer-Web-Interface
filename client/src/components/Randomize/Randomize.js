@@ -7,8 +7,6 @@ import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 
-import FileSelect from '../Common/FileSelect';
-import {checkStore} from '../Utility/Storage';
 import Spinner from '../Spinner/Spinner';
 import {v4 as uuidv4} from 'uuid';
 import axios from 'axios';
@@ -25,34 +23,12 @@ function Randomize() {
   const initialOptionsState = Object.fromEntries(Object.entries(Options.get()).map(
     ([k, o]) => [k, o.type === "combo" ? o.values[0] : false]))
 
-  const [game, _setGame] = useState('Seasons');
+  const [game, setGame] = useState('Seasons');
   const [options, setOptions] = useState(initialOptionsState);
   const [race, setRace] = useState(false);
-  const [valid, setValid] = useState(false);
   const [unlock, setUnlock] = useState(uuidv4().replace(/-/g,''));
   const [timeout, setTimeout] = useState(0);
   const [generating, setGenerating] = useState(false);
-
-  checkGame(game);
-
-  function setGame(g) {
-    if (g !== game) {
-      _setGame(g);
-      checkGame(g);
-    }
-  }
-
-  function checkGame(g){
-    checkStore(g, setValid);
-  }
-
-  function onCheckboxChange(e){
-    e.preventDefault();
-    const newOptions = {};
-    Object.assign(newOptions, options);
-    newOptions[e.target.id] = !options[e.target.id];
-    setOptions(newOptions);
-  }
 
   function toggleRace(e){
     setRace(e.target.checked);
@@ -131,7 +107,12 @@ function Randomize() {
       else { // Checkbox
         component =
           <Form.Check key={optName} type="switch" id={optName} >
-            <Form.Check.Input checked={options[optName]} onChange={onCheckboxChange} />
+            <Form.Check.Input checked={options[optName]} onChange={(e) => {
+              const newOptions = {};
+              Object.assign(newOptions, options);
+              newOptions[e.target.id] = !options[e.target.id];
+              setOptions(newOptions);
+            }}/>
           </Form.Check>
       }
 
@@ -183,7 +164,6 @@ function Randomize() {
               {gameToggle}
             </div>
           </div>
-          <FileSelect game={game} checkGame={checkGame} valid={valid}></FileSelect>
         </div>
         <div className="row">
           <Container style={{'maxWidth': '300px', 'marginLeft': '0'}}>
@@ -198,7 +178,7 @@ function Randomize() {
           </div>  
           {raceBody}
         </div>
-        <button className="btn btn-primary btn-lg btn-block" disabled={!valid} onClick={generate}>Randomize {game}</button>
+        <button className="btn btn-primary btn-lg btn-block" onClick={generate}>Randomize {game}</button>
       </div>
     )
 
