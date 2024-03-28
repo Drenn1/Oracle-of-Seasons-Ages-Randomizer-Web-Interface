@@ -12,10 +12,10 @@ class Header extends Component {
             <li className="nav-item">
               <a href="/randomize" className="nav-link text-light">Generate Game</a>
             </li>
+            <div className="col align-self-end">
+              <h2 className="text-light text-right">OOS/A Web Randomizer</h2>
+            </div>
           </ul>
-          <div className="col align-self-end">
-            <h2 className="text-light text-right">OOS/A Web Randomizer</h2>
-          </div>
         </div>
       </header>
     )

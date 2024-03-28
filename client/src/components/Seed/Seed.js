@@ -235,8 +235,8 @@ class Seed extends Component {
             <div className="col-sm">
               <div className="card">
                 <div className="card-body">
-                  <h3 className="card-title">Randomization options (fixed)</h3>
-                  <ul className="list-group list-group-flush" style={{opacity: 0.7}}>
+                  <h3 className="card-title">Randomization options</h3>
+                  <ul className="list-group list-group-flush" style={{opacity: 1.0}}>
                     {options}
                   </ul>
                 </div>

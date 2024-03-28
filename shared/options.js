@@ -10,11 +10,11 @@ const optionList = {
     desc: "Dungeon keys, maps, compasses, and slates can be placed anywhere."
   },
   "dungeons": {
-    name: "Shuffle Dungeons",
+    name: "Dungeon Shuffle",
     desc: "Dungeon entrance shuffle. No other entrances are shuffled."
   },
   "portals": {
-    name: "Shuffle Portals",
+    name: "Portal Shuffle",
     desc: "Shuffle which portal in Holodrum leads to which portal in Subrosia.",
     game: "oos"
   },
