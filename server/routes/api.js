@@ -150,7 +150,7 @@ router.post('/randomize', (req,res)=>{
   /*
   * Expects from req.body:
   *   game:          'oos' or 'ooa'  (just append ".blob" to get file to pass into randomizer)
-  *   options:       Array of options (keys for options.js)
+  *   options:       Map of options (corresponding to options.js)
   *   race:          Boolean
   * 
   * 
@@ -169,10 +169,21 @@ router.post('/randomize', (req,res)=>{
   const gameFile = randoRoot + `oracles-disasm/${baseRomName}.gbc`
 
   // Get options for execution arguments and seed string
+  optionList = Options.get(game);
   execArgs = []
   seedArgs = "";
-  for (const option of Object.keys(Options.get(game))) {
-    if (req.body.options[option]) {
+  for (const option of Object.keys(optionList)) {
+    if (optionList[option].type === "combo") {
+      execArgs.push("-" + option)
+      let value = String(req.body.options[option]);
+      if (!optionList[option].values.includes(value)) {
+        console.log(`WARNING: Value '${value}' for option '${option}' not valid`);
+        value = optionList[option].values[0];
+      }
+      execArgs.push(value);
+      seedArgs += `-${option}${value}`
+    }
+    else if (req.body.options[option] === true) {
       execArgs.push("-" + option);
       seedArgs += "-" + option;
     }
@@ -185,6 +196,7 @@ router.post('/randomize', (req,res)=>{
   // No log created with race flag. Create 1 pass normally to get a log file,
   // then second pass add race and plan
   pass1.push('-noui', gameFile);
+  console.log(`Running randomizer: ${randoExec} ${pass1.join(' ')}`)
   exec(randoExec, pass1, (err, out, stderr) => {
     if (err) {
       console.log("error");

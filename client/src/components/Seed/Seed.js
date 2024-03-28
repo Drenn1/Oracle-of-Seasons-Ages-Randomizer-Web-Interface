@@ -3,6 +3,11 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 import Saver from 'file-saver';
+import {
+  useLocation,
+  useNavigate,
+  useParams,
+} from "react-router-dom";
 
 import {checkStore, getBuffer} from '../Utility/Storage';
 import Sprite from './Sprite';
@@ -94,7 +99,7 @@ class Seed extends Component {
         </div>
       )
     } else {
-      return (<Log game={this.props.match.params.game} mode="seed" spoiler={this.state.seedData.spoiler}/>);
+      return (<Log game={this.props.router.params.game} mode="seed" spoiler={this.state.seedData.spoiler}/>);
     }
   }
 
@@ -125,7 +130,7 @@ class Seed extends Component {
 
   checkUnlockCode(e){
     this.setState({unlocking: true});
-    const {game, seed} = this.props.match.params;
+    const {game, seed} = this.props.router.params;
     axios.put(`/api/${game}/${seed}/${this.state.unlockcode}`)
       .then(res => {
         window.location.reload();
@@ -139,13 +144,13 @@ class Seed extends Component {
   }
 
   componentWillMount(){
-    if (!["oos", "ooa"].includes(this.props.match.params.game)){
+    if (!["oos", "ooa"].includes(this.props.router.params.game)){
       this.props.history.push('/randomize');
     }
   }
 
   componentDidMount(){
-    const {game, seed} = this.props.match.params;
+    const {game, seed} = this.props.router.params;
     const storageLabel = game === 'oos' ? 'Seasons' : 'Ages';
     axios.get(`/api/${game}/${seed}`)
       .then(res => {
@@ -169,7 +174,7 @@ class Seed extends Component {
   }
 
   render() {
-    const {game, seed} = this.props.match.params;
+    const {game, seed} = this.props.router.params;
     const {seedData} = this.state;
     let bodyContent;
     let titleText;
@@ -339,4 +344,23 @@ class Seed extends Component {
   }
 }
 
-export default Seed;
+
+// Workaround for changes to react routing in v18
+function withRouter(Component) {
+  function ComponentWithRouterProp(props) {
+    let location = useLocation();
+    let navigate = useNavigate();
+    let params = useParams();
+    return (
+      <Component
+        {...props}
+        router={{ location, navigate, params }}
+      />
+    );
+  }
+
+  return ComponentWithRouterProp;
+}
+
+
+export default withRouter(Seed);

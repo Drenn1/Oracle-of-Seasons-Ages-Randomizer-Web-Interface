@@ -7,6 +7,7 @@ import Home from './components/Home/Home';
 import Randomize from './components/Randomize/Randomize';
 import Seed from './components/Seed/Seed';
 import './App.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 class App extends Component {
   constructor(){

@@ -22,6 +22,12 @@ const optionList = {
     name: "Hard Logic",
     desc: "Only recommended for speedrunners. Requires more advanced knowledge and techniques concerning travel, alternate means of damagings enemies, getting seeds from locations other than trees, etc."
   },
+  "music": {
+    name: "Music Shuffle",
+    desc: "Shuffle music tracks. 'on'=shuffle normally, 'all'=include custom music tracks.",
+    type: "combo",
+    values: ["off", "on", "all"],
+  },
 };
 
 (function(exports){

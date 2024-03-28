@@ -1,5 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Form from 'react-bootstrap/Form';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Tooltip from 'react-bootstrap/Tooltip';
+
 import FileSelect from '../Common/FileSelect';
 import CheckBox from '../Common/CheckBox';
 import {checkStore} from '../Utility/Storage';
@@ -16,27 +20,30 @@ const games = {
 function Randomize() {
   const navigate = useNavigate();
 
-  function initialOptionsState() {
-    return Object.fromEntries(Object.keys(Options.get()).map((o) => [o, false]));
-  }
+  const initialOptionsState = Object.fromEntries(Object.keys(Options.get()).map((o) => [o, false]));
 
-  const [game, setGame] = useState('Seasons');
-  const [options, setOptions] = useState(initialOptionsState());
+  const [game, _setGame] = useState('Seasons');
+  const [options, setOptions] = useState(initialOptionsState);
   const [race, setRace] = useState(false);
   const [valid, setValid] = useState(false);
   const [unlock, setUnlock] = useState(uuidv4().replace(/-/g,''));
   const [timeout, setTimeout] = useState(0);
   const [generating, setGenerating] = useState(false);
 
-  function selectGame(e){
-    setGame(e.target.value);
+  checkGame(game);
+
+  function setGame(g) {
+    if (g !== game) {
+      _setGame(g);
+      checkGame(g);
+    }
   }
 
-  function checkGame(){
-    checkStore(game || "Seasons", setValid);
+  function checkGame(g){
+    checkStore(g, setValid);
   }
 
-  function toggleCheck(e){
+  function onCheckboxChange(e){
     e.preventDefault();
     const newOptions = {};
     Object.assign(newOptions, options);
@@ -78,19 +85,6 @@ function Randomize() {
       .catch(err => console.log(err))
   }
 
-// TODO
-/*
-  componentDidMount(){
-    this.checkGame();
-  }
-
-  componentDidUpdate(prevProps, prevState, snapshot){
-    if (this.state.game !== prevState.game){
-      this.checkGame();
-    }
-  }
-  */
-
   function render() {
     let gameToggle = Object.keys(games).map((g,i) => {
       let cName = "btn";
@@ -106,13 +100,21 @@ function Randomize() {
         cName += " rounded-right"
       }
       return (
-        <button className={cName} id={games[g]} key={g} value={games[g]} onClick={selectGame}> {games[g]}</button>
+        <button className={cName} id={games[g]} key={g} value={games[g]}
+                onClick={(e) => setGame(e.target.value)}> {games[g]}</button>
       )
     })
     const checkboxes = [];
     for (const [key, v] of Object.entries(Options.get(game))) {
       checkboxes.push(
-        <CheckBox key={key} value={key} label={v.name} info={v.desc} checked={options[key]} onCheck={toggleCheck}/>
+        <Form>
+          <Form.Check type="switch" id={key} >
+            <Form.Check.Input checked={options[key]} onChange={onCheckboxChange} />
+            <OverlayTrigger placement="right" overlay={<Tooltip id={"tooltip-"+v.name}>{v.desc}</Tooltip>}>
+              <Form.Check.Label>{v.name}</Form.Check.Label>
+            </OverlayTrigger>
+          </Form.Check>
+        </Form>
       )
     }
 
