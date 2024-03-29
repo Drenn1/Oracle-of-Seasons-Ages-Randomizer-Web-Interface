@@ -15,6 +15,7 @@ import Spinner from '../Spinner/Spinner';
 import FileSelect from '../Common/FileSelect';
 import Log from '../Log/Log';
 import Options from '../shared/options';
+import SpriteConfig from '../shared/sprite-config'
 import Patcher from '../Utility/Patcher';
 import './Seed.css';
 
@@ -25,23 +26,22 @@ class Seed extends Component {
       loading: true,
       seedData: null,
       game: null,
-      sprite: 0,
-      sprites: [],
+      sprite: 'link',
       palette: 0,
       unlock: false,
       unlockcode: '',
       unlocking: false,
       cosmeticOptions: {
         autoMermaid: true,
-        palette: 0,
       }
     }
+
+    this.sprites = SpriteConfig.get();
 
     this.setValid = this.setValid.bind(this);
     this.checkGame = this.checkGame.bind(this);
     this.getOptionsDisplay = this.getOptionsDisplay.bind(this);
     this.setSpoiler = this.setSpoiler.bind(this);
-    this.setSprite = this.setSprite.bind(this);
     this.patchAndDownload = this.patchAndDownload.bind(this);
     this.downloadLog = this.downloadLog.bind(this);
     this.setUnlockVisibility = this.setUnlockVisibility.bind(this);
@@ -56,7 +56,7 @@ class Seed extends Component {
     axios.post(`/api/${game}/${seed}/patch`, this.cosmeticOptions)
       .then(res => {
         Patcher(game, buffer, this.state.seedData,
-                res.data.patch, seed, this.state.sprites,
+                res.data.patch, seed, this.sprites,
                 this.state.sprite, this.state.palette);
       }).catch(err =>{
         console.log(err);
@@ -120,12 +120,6 @@ class Seed extends Component {
     }
   }
 
-  setSprite(e,key) {
-    this.setState({
-      [key]: parseInt(e.target.value)
-    });
-  }
-
   setValid(valid){
     if (!this.state.valid){
       this.setState({
@@ -165,15 +159,11 @@ class Seed extends Component {
     const storageLabel = game === 'oos' ? 'Seasons' : 'Ages';
     axios.get(`/api/${game}/${seed}`)
       .then(res => {
-        axios.get('/sprites/sprites.json')
-          .then(sres=>{
-            this.setState({
-              loading: false,
-              seedData: res.data,
-              game: storageLabel,
-              sprites: sres.data
-            })
-          })
+        this.setState({
+          loading: false,
+          seedData: res.data,
+          game: storageLabel,
+        })
       })
       .catch(err => {
         console.log('Unable to retrieve');
@@ -248,9 +238,12 @@ class Seed extends Component {
                   <h3 className="card-title">Cosmetic options</h3>
                   <Sprite
                     selectedSprite={this.state.sprite}
-                    selectedPalette={this.state.palette}
-                    sprites={this.state.sprites}
-                    setSprite={this.setSprite}
+                    paletteIndex={this.state.palette}
+                    setSprite={(s) => {
+                      this.setState({sprite: s, palette: this.sprites[s].defaultPalette})
+                    }}
+                    setPalette={(p) => this.setState({palette: p})}
+                    sprites={this.sprites}
                   />
                 </div>
               </div>
