@@ -1,16 +1,16 @@
 // TODO: Move this file into server/ directory so that changes are detected
 const spriteList = {
-  "link": {
-    "defaultPalette": 0,
-    "display": "Link"
+  link: {
+    defaultPalette: 0,
+    display: "Link"
   },
   // NOTE: File select harp-playing animation is probably broken for marin due
   // to animation hacks. Doesn't really matter since linked games aren't
   // supported, for now.
   "marin": {
-    "defaultPalette": 3,
-    "display": "Marin",
-    "animationHacks": [
+    defaultPalette: 3,
+    display: "Marin",
+    animationHacks: [
       {
         // Flute animation
         agesLabel:    'animationData19f90',
@@ -46,13 +46,13 @@ const spriteList = {
       },
     ]
   },
-  "demonlink": {
-    "defaultPalette": 5,
-    "display": "Demonic Link"
+  demonlink: {
+    defaultPalette: 5,
+    display: "Demonic Link"
   },
-  "likelike": {
-    "defaultPalette": 3,
-    "display": "Like-Like"
+  likelike: {
+    defaultPalette: 3,
+    display: "Like-Like"
   }
 };
 

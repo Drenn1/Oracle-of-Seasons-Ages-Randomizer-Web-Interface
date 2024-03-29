@@ -16,8 +16,8 @@ catch(err){
 const OOS = require('../models/OOSSeed');
 const OOA = require('../models/OOASeed');
 const logParse = require('../utility/logparse');
-const Options = require('../../shared/options')
-const SpriteConfig = require('../../shared/sprite-config')
+const Options = require('../shared/options')
+const SpriteConfig = require('../shared/sprite-config')
 
 const version = require('../base/version');
 
