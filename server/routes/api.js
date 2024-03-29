@@ -393,6 +393,7 @@ router.post('/:game/:id/patch', (req,res)=>{
 
       // File select palettes
       // TODO: Doesn't work for palettes 4/5
+      // TODO: Breaks Din palette on file select
       const fsPaletteBaseAddr = symbols['fileSelectDrawLink@spriteTable'];
       for (let i=0; i<16; i++) {
         a = readRomByte(fsPaletteBaseAddr + i) + fsPaletteBaseAddr + i;
@@ -413,12 +414,30 @@ router.post('/:game/:id/patch', (req,res)=>{
         spriteName = 'link';
       }
       else if (spriteName != 'link') {
+        // Patch sprite gfx data
         const data = fs.readFileSync(`sprites/${spriteName}.bin`);
         const spriteAddr = symbols['spr_link'];
 
         for (i=0; i<data.length; i++) {
           patchByte(spriteAddr + i, data[i]);
         }
+
+        // Patch animation data if applicable
+        if (Object.keys(spriteConfig[spriteName]).includes('animationHacks')) {
+          for (const ah of spriteConfig[spriteName].animationHacks) {
+            const label = ah[game === 'oos' ? 'seasonsLabel' : 'agesLabel'];
+            const data = ah.data;
+            if (!Object.keys(symbols).includes(label)) {
+              console.log(`ERROR: label '${label}' doesn't exist, skipping`);
+              return;
+            }
+            console.log(`Patching animation ${label}`);
+            const addr = symbols[label];
+            for (i=0; i<data.length; i++) {
+              patchByte(addr + i, data[i]);
+            }
+          }
+        };
       }
 
       const response = {
