@@ -26,14 +26,13 @@ class Seed extends Component {
       loading: true,
       seedData: null,
       game: null,
-      sprite: 'link',
-      palette: 0,
       unlock: false,
       unlockcode: '',
       unlocking: false,
-      cosmeticOptions: {
-        autoMermaid: true,
-      }
+
+      sprite: 'link',
+      palette: 0,
+      autoMermaid: true,
     }
 
     this.sprites = SpriteConfig.get();
@@ -53,7 +52,12 @@ class Seed extends Component {
   }
 
   patchAndDownload(buffer, game, seed){
-    axios.post(`/api/${game}/${seed}/patch`, this.cosmeticOptions)
+    const cosmeticOptions = {
+      sprite: this.state.sprite,
+      palette: this.state.palette,
+      autoMermaid: this.state.autoMermaid,
+    }
+    axios.post(`/api/${game}/${seed}/patch`, cosmeticOptions)
       .then(res => {
         Patcher(game, buffer, this.state.seedData,
                 res.data.patch, seed, this.sprites,
@@ -206,13 +210,9 @@ class Seed extends Component {
             <div className="form-check" key={checkbox.value}>
             <input className="form-check-input"
                    type="checkbox"
-                   checked={this.state.cosmeticOptions.autoMermaid}
-                   onChange={e => {
-                     const newOptions = {};
-                     Object.assign(newOptions, this.state.cosmeticOptions);
-                     newOptions[checkbox.value] = e.target.checked;
-                     this.setState({cosmeticOptions: newOptions});
-                   }}/>
+                   checked={this.state.autoMermaid}
+                   onChange={e => this.setState({autoMermaid: e.target.checked})}
+                   />
             <label className="form-check-label">Auto Mermaid Suit</label>
           </div>
         miscCheckboxes.push(v);

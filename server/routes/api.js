@@ -13,13 +13,11 @@ catch(err){
   seedHelper = function(inputLine){return inputLine;};
 }
 
-
-
-
 const OOS = require('../models/OOSSeed');
 const OOA = require('../models/OOASeed');
 const logParse = require('../utility/logparse');
 const Options = require('../../shared/options')
+const SpriteConfig = require('../../shared/sprite-config')
 
 const version = require('../base/version');
 
@@ -322,7 +320,7 @@ router.get('/:game/:id', (req,res)=>{
 router.post('/:game/:id/patch', (req,res)=>{
   /*
   * Expects from req.body:
-  *   options:       Array of post-randomization options
+  *   options:       Dict of post-randomization options
   *
   * Returns an Object with the following keys:
   *   patch: Array of {offset: patch data} objects
@@ -366,6 +364,10 @@ router.post('/:game/:id/patch', (req,res)=>{
           return baseRandoRom[game][addr];
       };
 
+      function patchByte(a, b) {
+        newPatch[a] = b;
+      }
+
       // Careful not to overwrite randomization settings other than "auto mermaid suit" here
       const randoConfigAddr = symbols['randoConfig'];
       let randoConfig = readRomByte(randoConfigAddr);
@@ -373,7 +375,7 @@ router.post('/:game/:id/patch', (req,res)=>{
       if (options.autoMermaid) {
         randoConfig |= 4;
       }
-      newPatch[randoConfigAddr] = randoConfig;
+      patchByte(randoConfigAddr, randoConfig);
 
       // In-game palettes
       // TODO: OAM fixes for harp, others
@@ -386,7 +388,7 @@ router.post('/:game/:id/patch', (req,res)=>{
         a = paletteBaseAddr + i * 2 + 1;
         b = readRomByte(a);
         b |= palette;
-        newPatch[a] = b;
+        patchByte(a, b);
       }
 
       // File select palettes
@@ -399,8 +401,23 @@ router.post('/:game/:id/patch', (req,res)=>{
         for (let j=0; j<n; j++) {
           b = readRomByte(a + 3);
           b |= palette;
-          newPatch[a + 3] = b;
+          patchByte(a + 3, b);
           a += 4;
+        }
+      }
+
+      const spriteConfig = SpriteConfig.get();
+      const spriteName = options['sprite'];
+      if (!Object.keys(spriteConfig).includes(spriteName)) {
+        console.log(`Invalid sprite name '${spriteName}'`);
+        spriteName = 'link';
+      }
+      else if (spriteName != 'link') {
+        const data = fs.readFileSync(`sprites/${spriteName}.bin`);
+        const spriteAddr = symbols['spr_link'];
+
+        for (i=0; i<data.length; i++) {
+          patchByte(spriteAddr + i, data[i]);
         }
       }
 
