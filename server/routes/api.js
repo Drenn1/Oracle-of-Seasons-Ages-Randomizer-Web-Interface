@@ -361,7 +361,7 @@ router.post('/:game/:id/patch', (req,res)=>{
       }
       patchByte(randoConfigAddr, randoConfig);
 
-      // In-game palettes for link
+      // Patch in-game palettes for link
       const paletteBaseAddr = symbols['specialObjectSetOamVariables@data'];
       let palette = 0;
       if (Object.hasOwn(options, 'palette') && options.palette >= 0 && options.palette <= 7) {
@@ -374,10 +374,17 @@ router.post('/:game/:id/patch', (req,res)=>{
         patchByte(a, b);
       }
 
+      // Fix file select palettes for link
+      for (let i=0; i<8; i++) {
+        const src = symbols['standardSpritePaletteData'] + palette * 8;
+        const dst = symbols['randoFileSelectLinkPaletteData'];
+        patchByte(dst + i, readRomByte(src + i));
+      }
+
       if (palette != 0) {
         // Fix in-game harp palettes by tweaking its sprite attribute byte. It
         // gets OR'd with Link's sprite attribute byte, making it difficult to
-        // retain the normal red palette when link is using nonstandard
+        // retain the normal red palette when Link is using nonstandard
         // palettes. This could be fixed with some assembly hacking, but the
         // easier solution is just to let the harp take the same palette as
         // Link, by zero'ing out its own palette value.
@@ -389,22 +396,7 @@ router.post('/:game/:id/patch', (req,res)=>{
           patchByte(a, readRomByte(a) & 0xf8);
       }
 
-      // File select palettes for link
-      // TODO: Doesn't work for palettes 4/5
-      // TODO: Breaks Din palette on file select
-      const fsPaletteBaseAddr = symbols['fileSelectDrawLink@spriteTable'];
-      for (let i=0; i<16; i++) {
-        a = readRomByte(fsPaletteBaseAddr + i) + fsPaletteBaseAddr + i;
-        n = readRomByte(a);
-        a += 1;
-        for (let j=0; j<n; j++) {
-          b = readRomByte(a + 3);
-          b |= palette;
-          patchByte(a + 3, b);
-          a += 4;
-        }
-      }
-
+      // Validate selected sprite
       const spriteConfig = SpriteConfig.get();
       const spriteName = options['sprite'];
       if (!Object.keys(spriteConfig).includes(spriteName)) {
@@ -412,7 +404,6 @@ router.post('/:game/:id/patch', (req,res)=>{
         spriteName = 'link';
       }
 
-      // Patch sprite gfx data
       var spriteData = fs.readFileSync(`sprites/${spriteName}.bin`);
       const spriteAddr = symbols['spr_link'];
 
@@ -431,6 +422,7 @@ router.post('/:game/:id/patch', (req,res)=>{
         patchByte(symbols['updateLinkInvincibilityCounter@incCounter'] - 2, 0x0a);
       }
 
+      // Patch sprite data
       for (let i=0; i<spriteData.length; i++) {
         patchByte(spriteAddr + i, spriteData[i]);
       }
