@@ -416,13 +416,19 @@ router.post('/:game/:id/patch', (req,res)=>{
       var spriteData = fs.readFileSync(`sprites/${spriteName}.bin`);
       const spriteAddr = symbols['spr_link'];
 
-      // If using an inverted palette, invert the sprite to match
+      // If using an inverted palette...
       if (palette === 4 || palette === 5) {
+        // Invert the sprite to match.
+        // (TODO: I guess the transformation rings should be inverted too?)
+        console.log('Inverting sprite data');
         spriteData = gb.invertGraphics(spriteData, (i) => {
           // Don't invert these parts of the sprite sheet
           const xy = (x, y) => ((y * 16) + x) * 0x20;
           return i >= xy(12, 13) && i < xy(14, 14); // Glow around link when starting a file, etc
         });
+
+        // Use a different palette when taking damage
+        patchByte(symbols['updateLinkInvincibilityCounter@incCounter'] - 2, 0x0a);
       }
 
       for (let i=0; i<spriteData.length; i++) {

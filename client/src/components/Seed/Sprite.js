@@ -29,13 +29,6 @@ class Sprite extends Component {
   }
 
   setOptionsS(){
-    /*
-    *   Each sprite has the following properties:
-    *     name - string representing the filename
-    *     defaultPalette: Number respresenting the default palette index used by the sprite
-    *     display - string representing name displayed on site
-    *     separatePatches - Boolean representing if there are animation patches in addition to graphics patches and will be game specific
-    */
     return Object.entries(this.props.sprites).map(([id, sprite]) => {
       return (
         <a key={id} value={id} className="dropdown-item" href='#' onClick={e => this.props.setSprite(id)}>
