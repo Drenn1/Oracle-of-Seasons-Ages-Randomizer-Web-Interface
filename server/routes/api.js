@@ -57,6 +57,16 @@ function gbPointerToAddress(bank, pointer) {
   }
 }
 
+function addressToGbPointer(address) {
+  if (address < 0x4000)
+    return address;
+  return (address & 0x3fff) + 0x4000;
+}
+
+function addressToBank(address) {
+  return Math.floor(address / 0x4000);
+}
+
 function loadSymbols(romFile) {
   const symbolFile = romFile.slice(0, romFile.lastIndexOf('.')) + '.sym';
   const fileContent = fs.readFileSync(symbolFile, 'utf-8');
@@ -437,7 +447,33 @@ router.post('/:game/:id/patch', (req,res)=>{
               patchByte(addr + i, data[i]);
             }
           }
-        };
+        }
+
+        // Patch gfx pointer data if applicable (only like-like uses this)
+        if (Object.keys(spriteConfig[spriteName]).includes('gfxPointerHacks')) {
+          Object.entries(spriteConfig[spriteName].gfxPointerHacks).map(([label, entries]) => {
+            if (!Object.keys(symbols).includes(label)) {
+              console.log(`ERROR: label '${label}' doesn't exist, skipping`);
+              return;
+            }
+            Object.entries(entries).map(([index, data]) => {
+              console.log(`Patching gfx pointer ${label} index ${index}`);
+
+              // Parsing data in accordance with the 'm_SpecialObjectGfxPointer'
+              // macro in the disassembly
+              const addr = symbols[label] + index * 3;
+              var word = addressToGbPointer(symbols[data[1]]); // gfx data file name
+              word += data[2]; // offset within data file
+              word |= data[3]; // Size of data (divided by 16)
+              // Relative bank number (should be 0 or 1))
+              word |= addressToBank(symbols[data[1]]) - addressToBank(symbols['gfxDataBank1a'])
+
+              patchByte(addr + 0, data[0]);
+              patchByte(addr + 1, word & 0xff);
+              patchByte(addr + 2, word >> 8);
+            });
+          });
+        }
       }
 
       const response = {
