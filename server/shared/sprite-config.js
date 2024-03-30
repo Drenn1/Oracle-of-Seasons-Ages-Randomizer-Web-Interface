@@ -1,8 +1,8 @@
-// TODO: Move this file into server/ directory so that changes are detected
 const spriteList = {
   link: {
     defaultPalette: 0,
-    display: "Link"
+    display: "Link",
+    contributor: "Nintendo",
   },
   // NOTE: File select harp-playing animation is probably broken for marin due
   // to animation hacks. Doesn't really matter since linked games aren't
@@ -10,6 +10,7 @@ const spriteList = {
   marin: {
     defaultPalette: 3,
     display: "Marin",
+    contributor: "Stewmat",
 
     // Hacks for animation data, because I was too lazy to draw harp & flute
     // sprites (uses her 'singing' sprites instead).
@@ -53,11 +54,13 @@ const spriteList = {
   },
   demonlink: {
     defaultPalette: 5,
-    display: "Demonic Link"
+    display: "Demonic Link",
+    contributor: "Stewmat",
   },
   likelike: {
     defaultPalette: 3,
     display: "Like-Like",
+    contributor: "Stewmat",
 
     // Hacks for "GfxPointer" data, needed due to the nature of certain
     // animations being changed. For example, the up/down walking animations no
