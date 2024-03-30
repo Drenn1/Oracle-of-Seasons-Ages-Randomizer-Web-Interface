@@ -25,7 +25,7 @@ class Sprite extends Component {
   }
 
   setOptionsP(){
-    return ['Green', 'Blue', 'Red', 'Gold', 'Blue (Inverted)', 'Red (Inverted)'].map((color,i)=> (<option key={color} value={i}>{color}</option>))
+    return ['Green', 'Blue', 'Red', 'Gold', 'Blue (alt)', 'Red (alt)'].map((color,i)=> (<option key={color} value={i}>{color}</option>))
   }
 
   setOptionsS(){

@@ -16,6 +16,7 @@ catch(err){
 const OOS = require('../models/OOSSeed');
 const OOA = require('../models/OOASeed');
 const logParse = require('../utility/logparse');
+const gb = require('../utility/gb');
 const Options = require('../shared/options')
 const SpriteConfig = require('../shared/sprite-config')
 
@@ -39,34 +40,6 @@ const symbolMaps = {
   'oos': loadSymbols(randoRoot + 'oracles-disasm/seasons.gbc')
 };
 
-// Helper function for gameboy pointer arithmetic
-function gbPointerToAddress(bank, pointer) {
-  console.assert(pointer >= 0 && pointer < 0x10000);
-
-  // RAM (ignore bank number, we'll probably never reference this anyway)
-  if (pointer >= 0x8000)
-    return pointer;
-  // ROM
-  else if (bank == 0) {
-    console.assert(pointer < 0x4000);
-    return pointer;
-  }
-  else {
-    console.assert(pointer >= 0x4000 && pointer < 0x8000);
-    return bank * 0x4000 + (pointer - 0x4000);
-  }
-}
-
-function addressToGbPointer(address) {
-  if (address < 0x4000)
-    return address;
-  return (address & 0x3fff) + 0x4000;
-}
-
-function addressToBank(address) {
-  return Math.floor(address / 0x4000);
-}
-
 function loadSymbols(romFile) {
   const symbolFile = romFile.slice(0, romFile.lastIndexOf('.')) + '.sym';
   const fileContent = fs.readFileSync(symbolFile, 'utf-8');
@@ -80,7 +53,7 @@ function loadSymbols(romFile) {
       const pointer = parseInt(m[2], 16);
       const name = m[3];
 
-      const addr = gbPointerToAddress(bank, pointer);
+      const addr = gb.ptrToAddr(bank, pointer);
       symbolMap[name] = addr;
     }
   }
@@ -93,6 +66,7 @@ function readBaseRandoRom(game) {
   return fs.readFileSync(randoRoot + `oracles-disasm/${baseRomName}.gbc`);
 }
 
+// Save seed data to database, send response indicating completion
 function saveSeed(res, game, seedBase, romFile, files) {
   let seedCollection = game === 'oos' ? OOS : OOA;
   const baseRomName = game === 'oos' ? 'seasons' : 'ages';
@@ -387,8 +361,7 @@ router.post('/:game/:id/patch', (req,res)=>{
       }
       patchByte(randoConfigAddr, randoConfig);
 
-      // In-game palettes
-      // TODO: OAM fixes for harp, others
+      // In-game palettes for link
       const paletteBaseAddr = symbols['specialObjectSetOamVariables@data'];
       let palette = 0;
       if (Object.hasOwn(options, 'palette') && options.palette >= 0 && options.palette <= 7) {
@@ -401,7 +374,22 @@ router.post('/:game/:id/patch', (req,res)=>{
         patchByte(a, b);
       }
 
-      // File select palettes
+      if (palette != 0) {
+        // Fix in-game harp palettes by tweaking its sprite attribute byte. It
+        // gets OR'd with Link's sprite attribute byte, making it difficult to
+        // retain the normal red palette when link is using nonstandard
+        // palettes. This could be fixed with some assembly hacking, but the
+        // easier solution is just to let the harp take the same palette as
+        // Link, by zero'ing out its own palette value.
+        const harpPaletteAddrs = (game === 'oos' ?
+            ['oamData481e6', 'oamData481f3'] :
+            ['oamData4c1e6', 'oamData4c1f3'])
+              .map(a => symbols[a] + 12);
+        for (a of harpPaletteAddrs)
+          patchByte(a, readRomByte(a) & 0xf8);
+      }
+
+      // File select palettes for link
       // TODO: Doesn't work for palettes 4/5
       // TODO: Breaks Din palette on file select
       const fsPaletteBaseAddr = symbols['fileSelectDrawLink@spriteTable'];
@@ -423,57 +411,65 @@ router.post('/:game/:id/patch', (req,res)=>{
         console.log(`Invalid sprite name '${spriteName}'`);
         spriteName = 'link';
       }
-      else if (spriteName != 'link') {
-        // Patch sprite gfx data
-        const data = fs.readFileSync(`sprites/${spriteName}.bin`);
-        const spriteAddr = symbols['spr_link'];
 
-        for (i=0; i<data.length; i++) {
-          patchByte(spriteAddr + i, data[i]);
-        }
+      // Patch sprite gfx data
+      var spriteData = fs.readFileSync(`sprites/${spriteName}.bin`);
+      const spriteAddr = symbols['spr_link'];
 
-        // Patch animation data if applicable
-        if (Object.keys(spriteConfig[spriteName]).includes('animationHacks')) {
-          for (const ah of spriteConfig[spriteName].animationHacks) {
-            const label = ah[game === 'oos' ? 'seasonsLabel' : 'agesLabel'];
-            const data = ah.data;
-            if (!Object.keys(symbols).includes(label)) {
-              console.log(`ERROR: label '${label}' doesn't exist, skipping`);
-              return;
-            }
-            console.log(`Patching animation ${label}`);
-            const addr = symbols[label];
-            for (i=0; i<data.length; i++) {
-              patchByte(addr + i, data[i]);
-            }
+      // If using an inverted palette, invert the sprite to match
+      if (palette === 4 || palette === 5) {
+        spriteData = gb.invertGraphics(spriteData, (i) => {
+          // Don't invert these parts of the sprite sheet
+          const xy = (x, y) => ((y * 16) + x) * 0x20;
+          return i >= xy(12, 13) && i < xy(14, 14); // Glow around link when starting a file, etc
+        });
+      }
+
+      for (let i=0; i<spriteData.length; i++) {
+        patchByte(spriteAddr + i, spriteData[i]);
+      }
+
+      // Patch animation data if applicable
+      if (Object.keys(spriteConfig[spriteName]).includes('animationHacks')) {
+        for (const ah of spriteConfig[spriteName].animationHacks) {
+          const label = ah[game === 'oos' ? 'seasonsLabel' : 'agesLabel'];
+          const data = ah.data;
+          if (!Object.keys(symbols).includes(label)) {
+            console.log(`ERROR: label '${label}' doesn't exist, skipping`);
+            return;
+          }
+          console.log(`Patching animation ${label}`);
+          const addr = symbols[label];
+          for (i=0; i<data.length; i++) {
+            patchByte(addr + i, data[i]);
           }
         }
+      }
 
-        // Patch gfx pointer data if applicable (only like-like uses this)
-        if (Object.keys(spriteConfig[spriteName]).includes('gfxPointerHacks')) {
-          Object.entries(spriteConfig[spriteName].gfxPointerHacks).map(([label, entries]) => {
-            if (!Object.keys(symbols).includes(label)) {
-              console.log(`ERROR: label '${label}' doesn't exist, skipping`);
-              return;
-            }
-            Object.entries(entries).map(([index, data]) => {
-              console.log(`Patching gfx pointer ${label} index ${index}`);
+      // Patch gfx pointer data if applicable (only like-like uses this)
+      if (Object.keys(spriteConfig[spriteName]).includes('gfxPointerHacks')) {
+        Object.entries(spriteConfig[spriteName].gfxPointerHacks).map(([label, entries]) => {
+          if (!Object.keys(symbols).includes(label)) {
+            console.log(`ERROR: label '${label}' doesn't exist, skipping`);
+            return;
+          }
+          Object.entries(entries).map(([index, data]) => {
+            console.log(`Patching gfx pointer ${label} index ${index}`);
 
-              // Parsing data in accordance with the 'm_SpecialObjectGfxPointer'
-              // macro in the disassembly
-              const addr = symbols[label] + index * 3;
-              var word = addressToGbPointer(symbols[data[1]]); // gfx data file name
-              word += data[2]; // offset within data file
-              word |= data[3]; // Size of data (divided by 16)
-              // Relative bank number (should be 0 or 1))
-              word |= addressToBank(symbols[data[1]]) - addressToBank(symbols['gfxDataBank1a'])
+            // Parsing data in accordance with the 'm_SpecialObjectGfxPointer'
+            // macro in the disassembly
+            const addr = symbols[label] + index * 3;
+            var word = gb.addrToPtr(symbols[data[1]]); // gfx data file name
+            word += data[2]; // offset within data file
+            word |= data[3]; // Size of data (divided by 16)
+            // Relative bank number (should be 0 or 1))
+            word |= gb.addrToBank(symbols[data[1]]) - gb.addrToBank(symbols['gfxDataBank1a'])
 
-              patchByte(addr + 0, data[0]);
-              patchByte(addr + 1, word & 0xff);
-              patchByte(addr + 2, word >> 8);
-            });
+            patchByte(addr + 0, data[0]);
+            patchByte(addr + 1, word & 0xff);
+            patchByte(addr + 2, word >> 8);
           });
-        }
+        });
       }
 
       const response = {
