@@ -23,6 +23,7 @@ class Seed extends Component {
     super();
     this.state = {
       loading: true,
+      downloading: false,
       seedData: null,
       game: null,
       unlock: false,
@@ -57,6 +58,7 @@ class Seed extends Component {
     axios.post(`/api/${game}/${seed}/patch`, cosmeticOptions)
       .then(res => {
         Patcher(game, buffer, this.state.seedData, res.data.patch, seed);
+        this.setState({downloading: false});
       }).catch(err =>{
         console.log(err);
       });
@@ -253,9 +255,15 @@ class Seed extends Component {
               type="button"
               className="btn btn-primary col-2"
               disabled={!this.state.valid}
-              onClick={e=>getBuffer(this.state.game, game, seed, this.patchAndDownload)}
-            > 
-                Save Rom
+              onClick={e => {
+                this.setState({downloading: true});
+                getBuffer(this.state.game, game, seed, this.patchAndDownload)
+              }}
+            >
+              {this.state.downloading ?
+               <><span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+               <span class="sr-only">Downloading...</span></>
+               : "Download Rom"}
             </button>
             <button
               type="button"

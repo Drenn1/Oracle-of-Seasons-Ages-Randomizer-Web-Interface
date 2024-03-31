@@ -17,7 +17,7 @@ class Sprite extends Component {
         this.sprites = YAML.parse(buffer);
 
         // Grab images for all sprites
-        for (let [id,sprite] of Object.entries(this.sprites)) {
+        for (let id of Object.keys(this.sprites)) {
           fetch(`/img/${id}.gif`).then(res => {
             res.arrayBuffer().then(buffer => {
               spriteBuffers[id] = buffer;
@@ -34,23 +34,23 @@ class Sprite extends Component {
 
   setOptionsP(){
     return ['Green', 'Blue', 'Red', 'Gold', 'Blue (alt)', 'Red (alt)', 'Random'].map(
-      (color,i) => (<option key={color} value={i==6?8:i}>{color}</option>))
+      (color,i) => (<option key={color} value={i===6?8:i}>{color}</option>))
   }
 
   setOptionsS(){
     if (this.sprites === undefined)
       return <></>
 
-    var sortedSprites = Object.keys(this.sprites).filter((s) => s != 'link' && s != 'random').sort()
+    var sortedSprites = Object.keys(this.sprites).filter((s) => s !== 'link' && s !== 'random').sort()
     sortedSprites = ['link', 'random', ...sortedSprites]
     return sortedSprites.map((id) => {
       const sprite = this.sprites[id];
       return (
-        <a key={id} value={id} className="dropdown-item" href='#'
+        <button key={id} value={id} className="dropdown-item"
            onClick={e => this.props.setSprite(id, this.sprites[id].defaultPalette)}>
           <img src={`/img/${id}.gif`} alt={`${sprite.display}-Sprite`} height="32" className="mr-4"/>
           <span className="font-weight-bold">{sprite.display}</span>
-        </a>
+        </button>
       )
     })
   }
