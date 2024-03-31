@@ -364,8 +364,11 @@ router.post('/:game/:id/patch', (req,res)=>{
       // Patch in-game palettes for link
       const paletteBaseAddr = symbols['specialObjectSetOamVariables@data'];
       let palette = 0;
-      if (Object.hasOwn(options, 'palette') && options.palette >= 0 && options.palette <= 7) {
-        palette = options.palette;
+      if (Object.hasOwn(options, 'palette')) {
+        if (options.palette === 8) // Choose at random
+          palette = Math.floor(Math.random() * 6);
+        else if (options.palette >= 0 && options.palette <= 7)
+          palette = options.palette;
       }
       for (let i=0; i<10; i++) {
         a = paletteBaseAddr + i * 2 + 1;
@@ -398,8 +401,13 @@ router.post('/:game/:id/patch', (req,res)=>{
 
       // Validate selected sprite
       const spriteConfig = YAML.parse(fs.readFileSync('shared/sprite-config.yaml', 'utf-8'))
-      const spriteName = options['sprite'];
-      if (!Object.keys(spriteConfig).includes(spriteName)) {
+      var spriteName = options['sprite'];
+      if (spriteName === 'random') { // Choose a sprite at random
+        const spriteList = Object.keys(spriteConfig).filter((s) => s != 'random');
+        console.log(spriteList.length);
+        spriteName = spriteList[Math.floor(Math.random() * (spriteList.length))];
+      }
+      else if (!Object.keys(spriteConfig).includes(spriteName)) {
         console.log(`Invalid sprite name '${spriteName}'`);
         spriteName = 'link';
       }

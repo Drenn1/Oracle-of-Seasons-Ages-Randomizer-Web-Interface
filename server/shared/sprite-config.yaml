@@ -3,6 +3,11 @@ link:
   display: "Link"
   contributor: "Nintendo"
 
+# Not a real sprite
+random:
+  display: "Random"
+  defaultPalette: 8
+
 # NOTE: File select harp-playing animation is probably broken for marin due to
 # animation hacks. Doesn't really matter since linked games aren't supported,
 # for now.

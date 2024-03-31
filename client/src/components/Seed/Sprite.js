@@ -33,14 +33,18 @@ class Sprite extends Component {
   }
 
   setOptionsP(){
-    return ['Green', 'Blue', 'Red', 'Gold', 'Blue (alt)', 'Red (alt)'].map((color,i)=> (<option key={color} value={i}>{color}</option>))
+    return ['Green', 'Blue', 'Red', 'Gold', 'Blue (alt)', 'Red (alt)', 'Random'].map(
+      (color,i) => (<option key={color} value={i==6?8:i}>{color}</option>))
   }
 
   setOptionsS(){
     if (this.sprites === undefined)
       return <></>
 
-    return Object.entries(this.sprites).map(([id, sprite]) => {
+    var sortedSprites = Object.keys(this.sprites).filter((s) => s != 'link' && s != 'random').sort()
+    sortedSprites = ['link', 'random', ...sortedSprites]
+    return sortedSprites.map((id) => {
+      const sprite = this.sprites[id];
       return (
         <a key={id} value={id} className="dropdown-item" href='#'
            onClick={e => this.props.setSprite(id, this.sprites[id].defaultPalette)}>
