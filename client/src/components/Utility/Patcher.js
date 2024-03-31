@@ -79,7 +79,7 @@ function finalize(rom_array, romName){
   Saver.saveAs(finishedRom, `${romName}.gbc`);
 }
 
-export default function(game, vanilla, seedData, patchData, seed, sprites, spriteIndex, paletteIndex) {
+export default function(game, vanilla, seedData, patchData, seed) {
   const rom_array = new Uint8Array(Number(patchData['length']));
   rom_array.set(new Uint8Array(vanilla));
 
@@ -90,22 +90,5 @@ export default function(game, vanilla, seedData, patchData, seed, sprites, sprit
       continue;
     rom_array[Number(key)] = Number(value);
   }
-
-  // Default sprite will be index 0, so don't need to alter sprite data here
-  if (spriteIndex > 0) {
-    let modifier = ''
-    if (sprites[spriteIndex].extendedRom) {
-      rom_array.push([0] * 0x4000 * 0x40)
-    }
-    if (sprites[spriteIndex].separatePatches && game === "ooa"){
-      modifier = 'ages/';
-    }
-    fetch(`/sprites/patch/${modifier}${sprites[spriteIndex].name}.ips`)
-      .then(res=>res.arrayBuffer().then(buffer=>{
-        parseIPS(rom_array,buffer);
-        finalize(rom_array, romName);
-      }))
-  } else {
-    finalize(rom_array, romName);
-  }
+  finalize(rom_array, romName);
 }

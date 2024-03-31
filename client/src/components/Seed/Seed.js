@@ -15,7 +15,6 @@ import Spinner from '../Spinner/Spinner';
 import FileSelect from '../Common/FileSelect';
 import Log from '../Log/Log';
 import Options from '../shared/options';
-import SpriteConfig from '../shared/sprite-config'
 import Patcher from '../Utility/Patcher';
 import './Seed.css';
 
@@ -34,8 +33,6 @@ class Seed extends Component {
       palette: 0,
       autoMermaid: true,
     }
-
-    this.sprites = SpriteConfig.get();
 
     this.setValid = this.setValid.bind(this);
     this.checkGame = this.checkGame.bind(this);
@@ -59,9 +56,7 @@ class Seed extends Component {
     }
     axios.post(`/api/${game}/${seed}/patch`, cosmeticOptions)
       .then(res => {
-        Patcher(game, buffer, this.state.seedData,
-                res.data.patch, seed, this.sprites,
-                this.state.sprite, this.state.palette);
+        Patcher(game, buffer, this.state.seedData, res.data.patch, seed);
       }).catch(err =>{
         console.log(err);
       });
@@ -185,8 +180,6 @@ class Seed extends Component {
     let titleText;
     const gameTitle = game === "oos" ? "Seasons" : "Ages"
 
-    // TODO Create array of sprites and map to JSX
-
     if (this.state.loading) {
       bodyContent = (<div className="card-body"><Spinner /></div>)
       titleText = `Fetching Oracle of ${gameTitle} Seed...`
@@ -239,11 +232,10 @@ class Seed extends Component {
                   <Sprite
                     selectedSprite={this.state.sprite}
                     paletteIndex={this.state.palette}
-                    setSprite={(s) => {
-                      this.setState({sprite: s, palette: this.sprites[s].defaultPalette})
+                    setSprite={(s, p) => {
+                      this.setState({sprite: s, palette: p})
                     }}
                     setPalette={(p) => this.setState({palette: p})}
-                    sprites={this.sprites}
                   />
                 </div>
               </div>

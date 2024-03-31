@@ -1,3 +1,4 @@
+import YAML from 'yaml';
 import React, {Component} from 'react'
 import Palettes from '../Utility/Palettes';
 const palettes = Palettes();
@@ -10,16 +11,23 @@ class Sprite extends Component {
     this.setOptionsS = this.setOptionsS.bind(this);
     this.setSpriteImage = this.setSpriteImage.bind(this);
 
-    Object.entries(this.props.sprites).map(([id,sprite]) => {
-      fetch(`/img/${id}.gif`)
-      .then(res =>{
-        res.arrayBuffer()
-        .then(buffer => {
-          spriteBuffers[id] = buffer;
-          if (this.props.sprites.length === spriteBuffers.length){
-            this.forceUpdate();
-          }
-        })
+    // Load sprite config data
+    fetch(`/sprite-config.yaml`).then(res => {
+      res.text().then(buffer => {
+        this.sprites = YAML.parse(buffer);
+
+        // Grab images for all sprites
+        for (let [id,sprite] of Object.entries(this.sprites)) {
+          fetch(`/img/${id}.gif`).then(res => {
+            res.arrayBuffer().then(buffer => {
+              spriteBuffers[id] = buffer;
+              if (this.sprites.length === spriteBuffers.length){
+                // Update after all sprites are loaded
+                this.forceUpdate();
+              }
+            })
+          })
+        };
       })
     });
   }
@@ -29,9 +37,13 @@ class Sprite extends Component {
   }
 
   setOptionsS(){
-    return Object.entries(this.props.sprites).map(([id, sprite]) => {
+    if (this.sprites === undefined)
+      return <></>
+
+    return Object.entries(this.sprites).map(([id, sprite]) => {
       return (
-        <a key={id} value={id} className="dropdown-item" href='#' onClick={e => this.props.setSprite(id)}>
+        <a key={id} value={id} className="dropdown-item" href='#'
+           onClick={e => this.props.setSprite(id, this.sprites[id].defaultPalette)}>
           <img src={`/img/${id}.gif`} alt={`${sprite.display}-Sprite`} height="32" className="mr-4"/>
           <span className="font-weight-bold">{sprite.display}</span>
         </a>
@@ -40,18 +52,17 @@ class Sprite extends Component {
   }
 
   setSpriteImage(){
-    if (spriteBuffers.length === this.props.sprites.length) {
-      const gifArray = new Uint8Array(spriteBuffers[this.props.selectedSprite])
-      palettes[this.props.paletteIndex].forEach((val,i)=>{
-        gifArray[i+13] = val;
-      })    
-      const blob = new Blob([gifArray], {type: 'image/gif'})
-      const baseURL = window.URL;
-      const imgURL = baseURL.createObjectURL(blob)
-      return (<img src={imgURL}  alt="Link-Sprite" className="mr-3 mt-5 d-inline align-middle" id="link-sprite"/>)
-    } else {
-      return (<div></div>)
-    }
+    if (this.sprites === undefined || spriteBuffers.length !== this.sprites.length)
+      return <></>
+
+    const gifArray = new Uint8Array(spriteBuffers[this.props.selectedSprite])
+    palettes[this.props.paletteIndex].forEach((val,i)=>{
+      gifArray[i+13] = val;
+    })
+    const blob = new Blob([gifArray], {type: 'image/gif'})
+    const baseURL = window.URL;
+    const imgURL = baseURL.createObjectURL(blob)
+    return (<img src={imgURL}  alt="Link-Sprite" className="mr-3 mt-5 d-inline align-middle" id="link-sprite"/>)
   }
 
   render(){
@@ -69,7 +80,7 @@ class Sprite extends Component {
           <div className="dropdown">
             <button className="btn btn-primary btn-block dropdown-toggle" type="button" id="spriteDropdown"
                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              {this.props.sprites[this.props.selectedSprite].display}
+              {this.sprites ? this.sprites[this.props.selectedSprite].display : "Loading..."}
             </button>
             <div className="dropdown-menu" aria-labelledby="spriteDropdown">
               {spriteOptions}

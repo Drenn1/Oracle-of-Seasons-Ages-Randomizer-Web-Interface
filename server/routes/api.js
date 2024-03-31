@@ -3,6 +3,7 @@ const router = express.Router();
 const exec = require('child_process').execFile;
 const fs = require('fs');
 const readline = require('readline');
+const YAML = require('yaml')
 
 // For encoding the seed string, returns original seed data if module not found (module not added to git)
 let seedHelper
@@ -18,7 +19,6 @@ const OOA = require('../models/OOASeed');
 const logParse = require('../utility/logparse');
 const gb = require('../utility/gb');
 const Options = require('../shared/options')
-const SpriteConfig = require('../shared/sprite-config')
 
 const version = require('../base/version');
 
@@ -397,7 +397,7 @@ router.post('/:game/:id/patch', (req,res)=>{
       }
 
       // Validate selected sprite
-      const spriteConfig = SpriteConfig.get();
+      const spriteConfig = YAML.parse(fs.readFileSync('shared/sprite-config.yaml', 'utf-8'))
       const spriteName = options['sprite'];
       if (!Object.keys(spriteConfig).includes(spriteName)) {
         console.log(`Invalid sprite name '${spriteName}'`);
