@@ -1,14 +1,30 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import Container from 'react-bootstrap/Container';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
+import Navbar from 'react-bootstrap/Navbar';
 
 class Footer extends Component {
   render() {
     return (
-      <footer className="footer fixed-bottom">
-        <div className="container-fluid bg-info text-light align-middle">
-          Randomizer ({this.props.version}) by jangler, Interface (v2.0.2) by jaysee87
-        </div>
-    </footer>
+      <>
+        {/* Padding for footer */}
+        <div style={{height: '60px'}}></div>
+
+        <footer className="fixed-bottom bg-info text-light" >
+          <Container fluid>
+            <Row>
+              <Col className="text-start">
+                Version: {this.props.version}
+              </Col>
+              <Col className="text-end">
+                Coded by Stewmat, jangler, jaysee87
+              </Col>
+            </Row>
+          </Container>
+        </footer>
+      </>
     )
   }
 }
