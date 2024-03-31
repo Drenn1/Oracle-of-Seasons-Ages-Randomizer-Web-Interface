@@ -251,29 +251,35 @@ class Seed extends Component {
           </div>
     
           <div className="row my-5 px-4">
-            <button
-              type="button"
-              className="btn btn-primary col-2"
-              disabled={!this.state.valid}
-              onClick={e => {
-                this.setState({downloading: true});
-                getBuffer(this.state.game, game, seed, this.patchAndDownload)
-              }}
-            >
-              {this.state.downloading ?
-               <><span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-               <span class="sr-only">Downloading...</span></>
-               : "Download Rom"}
-            </button>
-            <button
-              type="button"
-              className="btn btn-primary col-2 ml-2"
-              disabled={!this.state.valid}
-              onClick={e=>getBuffer(this.state.game, game, seed, this.downloadLog)}
-            >
-                Save Log
-            </button>
-            <FileSelect game={game === 'oos' ? 'Seasons' : 'Ages'} inline={true} checkGame={this.checkGame} valid={this.state.valid}/>
+            <div className="col-sm">
+              <button
+                type="button"
+                className="btn btn-primary ml-2"
+                disabled={!this.state.valid}
+                onClick={e => {
+                  this.setState({downloading: true});
+                  getBuffer(this.state.game, game, seed, this.patchAndDownload)
+                }}
+              >
+                {this.state.downloading ?
+                 <><span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                   <span class="sr-only">Downloading...</span></>
+                 : "Download Rom"}
+              </button>
+              <button
+                type="button"
+                className="btn btn-primary ml-2"
+                disabled={!this.state.valid}
+                onClick={e=>getBuffer(this.state.game, game, seed, this.downloadLog)}
+              >
+                Download Log
+              </button>
+            </div>
+            <div className="col-sm">
+              <FileSelect game={game === 'oos' ? 'Seasons' : 'Ages'}
+              inline={true} checkGame={this.checkGame}
+              valid={this.state.valid}/>
+            </div>
           </div>
           {spoilerLog}
         </div>
