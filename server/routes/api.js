@@ -5,15 +5,6 @@ const fs = require('fs');
 const readline = require('readline');
 const YAML = require('yaml')
 
-// For encoding the seed string, returns original seed data if module not found (module not added to git)
-let seedHelper
-try{
-  seedHelper = require('../seedhelper/seedhelper');
-}
-catch(err){
-  seedHelper = function(inputLine){return inputLine;};
-}
-
 const OOS = require('../models/OOSSeed');
 const OOA = require('../models/OOASeed');
 const logParse = require('../utility/logparse');
@@ -124,6 +115,15 @@ function getBasePatch(game) {
   return patchData;
 }
 
+// Generate the string that will uniquely identify this generated ROM. This will
+// be used in the shareable URL, so it's important that it's unique.
+function generateSeedString(version, game, seed, seedArgs) {
+  if (seedArgs === '')
+    return `${version}_${game}_${seed}`;
+  else
+    return `${version}_${game}_${seed}_${seedArgs}`;
+}
+
 router.get('/version', (req, res)=>{
   res.json({version: version})
 });
@@ -194,12 +194,15 @@ router.post('/randomize', (req,res)=>{
       const logFile =   files[1].split(' ').filter(word => word.includes(version))[0]
       const dataFiles = [romFile, logFile];
 
-      // Breaks the filename into different segments [base, version, seed] and then remove flag chars
-      const seed = romFile.split(/[_.]/)[2].split('-')[0]
-      const encodedSeed = seedHelper(`${version}_${game}_${seed}_${seedArgs}`);
+      // Extract the seed from the filename
+      const seed = romFile.split(/[_]/)[2].split('-')[0].substring(0, 8);
+      const encodedSeed = generateSeedString(version, game, seed, seedArgs);
+      console.log(`Seed string: "${encodedSeed}"`);
+
       const logFileData = fs.readFileSync(logFile, {encoding: 'utf8'});
       const parsedLog = logParse(logFileData, game);
       // const stringified = JSON.stringify(parsedLog);
+
       const newSeedBase = {
         seed: encodedSeed,
         baseSeed: seed,
@@ -366,7 +369,6 @@ router.post('/:game/:id/patch', (req,res)=>{
       var spriteName = options['sprite'];
       if (spriteName === 'random') { // Choose a sprite at random
         const spriteList = Object.keys(spriteConfig).filter((s) => s != 'random');
-        console.log(spriteList.length);
         spriteName = spriteList[Math.floor(Math.random() * (spriteList.length))];
       }
       else if (!Object.keys(spriteConfig).includes(spriteName)) {
