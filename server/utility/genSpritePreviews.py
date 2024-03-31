@@ -65,7 +65,7 @@ def genSpriteImage(name):
     img = img.resize((16 * IMAGE_SCALE, 16 * IMAGE_SCALE), resample=Image.NEAREST)
 
     outFile = open(outFilename, 'wb')
-    img.save(outFile)
+    img.save(outFile, palette=PALETTES[paletteIndex])
     outFile.close()
 
 for sprite in spriteConfig:

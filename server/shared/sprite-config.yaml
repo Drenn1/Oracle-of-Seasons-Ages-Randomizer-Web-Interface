@@ -110,3 +110,48 @@ nayru:
     specialObject00GfxPointers:
       45: [0x80, 'spr_link', 0x11c0, 0x04]
       47: [0x81, 'spr_link', 0x11c0, 0x04]
+
+darklink:
+  defaultPalette: 5
+  display: "Dark Link"
+  contributor: "revan_xviv"
+
+goron:
+  defaultPalette: 3
+  display: "Goron"
+  contributor: "Snow"
+
+matty:
+  defaultPalette: 3
+  display: "Matty"
+  contributor: "Madam Materia"
+
+piratian:
+  defaultPalette: 1
+  display: "Piratian"
+  contributor: "Snow"
+
+rosa_key:
+  defaultPalette: 3
+  display: "Rosa (with key)"
+  contributor: "Snow"
+
+rosa_nokey:
+  defaultPalette: 3
+  display: "Rosa (no key)"
+  contributor: "Snow"
+
+subrosian:
+  defaultPalette: 0
+  display: "Subrosian"
+  contributor: "Snow"
+
+tokay:
+  defaultPalette: 0
+  display: "Tokay"
+  contributor: "Snow"
+
+zoroark:
+  defaultPalette: 2
+  display: "Zoroark"
+  contributor: "Snow"
