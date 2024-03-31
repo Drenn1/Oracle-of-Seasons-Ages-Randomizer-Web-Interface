@@ -90,6 +90,11 @@ class Sprite extends Component {
               {spriteOptions}
             </div>
           </div>
+          {this.sprites ?
+           <div class="text-center">
+             Contributed by: {this.sprites[this.props.selectedSprite].contributor}
+           </div>
+           : <></>}
           <h4 className="mt-4">Sprite Palette Selection</h4>
           <div className="input-group">
             <select className="custom-select" name="paletteIndex" id="paletteIndex"
