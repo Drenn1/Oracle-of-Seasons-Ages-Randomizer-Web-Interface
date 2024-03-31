@@ -23,8 +23,8 @@ RUN /usr/sbin/adduser nonroot -h /home/nonroot -s /bin/sh -D
 # Copy clean clone of git repository to docker
 COPY clonedir/client /site/client
 COPY clonedir/server /site/server
-COPY clonedir/shared /site/shared
 COPY clonedir/package.json /site/
+COPY /oracles-randomizer-ng/randomizer/version.go /site/oracles-randomizer-ng/randomizer/version.go
 RUN chown -R nonroot /site
 WORKDIR /site
 
@@ -38,6 +38,8 @@ RUN mkdir -p oracles-randomizer-ng/oracles-disasm
 COPY oracles-randomizer-ng/oracles-disasm/seasons.gbc oracles-randomizer-ng/oracles-disasm/seasons.sym \
   oracles-randomizer-ng/oracles-disasm/ages.gbc oracles-randomizer-ng/oracles-disasm/ages.sym \
   /site/oracles-randomizer-ng/oracles-disasm/
+COPY oracles-randomizer-ng/oracles-disasm/audio/common/*.txt \
+  /site/oracles-randomizer-ng/oracles-disasm/audio/common/
 COPY oracles-randomizer-ng/oracles-randomizer-ng /site/oracles-randomizer-ng/
 COPY roms/ages_clean.gbc roms/seasons_clean.gbc /site/roms/
 
