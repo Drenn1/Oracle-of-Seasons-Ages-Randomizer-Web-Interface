@@ -7,6 +7,11 @@ const spriteBuffers = {};
 class Sprite extends Component {
   constructor(props){
     super(props);
+
+    this.state = {
+      sprite: 'link'
+    };
+
     this.setOptionsP = this.setOptionsP.bind(this);
     this.setOptionsS = this.setOptionsS.bind(this);
     this.setSpriteImage = this.setSpriteImage.bind(this);
@@ -32,9 +37,17 @@ class Sprite extends Component {
     });
   }
 
+  setSprite(id, palette) {
+    this.props.setSprite(id, palette);
+    this.setState({sprite: id});
+  }
+
   setOptionsP(){
-    return ['Green', 'Blue', 'Red', 'Gold', 'Blue (alt)', 'Red (alt)', 'Random'].map(
-      (color,i) => (<option key={color} value={i===6?8:i}>{color}</option>))
+    let options = ['Green', 'Blue', 'Red', 'Gold', 'Blue (alt)', 'Red (alt)', 'Random'];
+    if (this.state.sprite === 'random')
+      options.push('Default') // random = 6, default = 7
+    return options.map(
+      (color,i) => (<option key={color} value={i}>{color}</option>))
   }
 
   setOptionsS(){
@@ -47,7 +60,7 @@ class Sprite extends Component {
       const sprite = this.sprites[id];
       return (
         <button key={id} value={id} className="dropdown-item"
-           onClick={e => this.props.setSprite(id, this.sprites[id].defaultPalette)}>
+                onClick={e => this.setSprite(id, this.sprites[id].defaultPalette)}>
           <img src={`/img/${id}.gif`} alt={`${sprite.display}-Sprite`} height="32" className="mr-4"/>
           <span className="font-weight-bold">{sprite.display}</span>
         </button>

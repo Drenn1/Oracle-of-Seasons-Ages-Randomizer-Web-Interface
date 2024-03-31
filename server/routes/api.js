@@ -361,13 +361,28 @@ router.post('/:game/:id/patch', (req,res)=>{
       }
       patchByte(randoConfigAddr, randoConfig);
 
+      // Validate selected sprite
+      const spriteConfig = YAML.parse(fs.readFileSync('shared/sprite-config.yaml', 'utf-8'))
+      var spriteName = options['sprite'];
+      if (spriteName === 'random') { // Choose a sprite at random
+        const spriteList = Object.keys(spriteConfig).filter((s) => s != 'random');
+        console.log(spriteList.length);
+        spriteName = spriteList[Math.floor(Math.random() * (spriteList.length))];
+      }
+      else if (!Object.keys(spriteConfig).includes(spriteName)) {
+        console.log(`Invalid sprite name '${spriteName}'`);
+        spriteName = 'link';
+      }
+
       // Patch in-game palettes for link
       const paletteBaseAddr = symbols['specialObjectSetOamVariables@data'];
       let palette = 0;
       if (Object.hasOwn(options, 'palette')) {
-        if (options.palette === 8) // Choose at random
+        if (options.palette === 6) // Choose at random
           palette = Math.floor(Math.random() * 6);
-        else if (options.palette >= 0 && options.palette <= 7)
+        else if (options.palette === 7) // Default for chosen sprite
+          palette = spriteConfig[spriteName].defaultPalette;
+        else if (options.palette >= 0 && options.palette <= 5)
           palette = options.palette;
       }
       for (let i=0; i<10; i++) {
@@ -397,19 +412,6 @@ router.post('/:game/:id/patch', (req,res)=>{
               .map(a => symbols[a] + 12);
         for (a of harpPaletteAddrs)
           patchByte(a, readRomByte(a) & 0xf8);
-      }
-
-      // Validate selected sprite
-      const spriteConfig = YAML.parse(fs.readFileSync('shared/sprite-config.yaml', 'utf-8'))
-      var spriteName = options['sprite'];
-      if (spriteName === 'random') { // Choose a sprite at random
-        const spriteList = Object.keys(spriteConfig).filter((s) => s != 'random');
-        console.log(spriteList.length);
-        spriteName = spriteList[Math.floor(Math.random() * (spriteList.length))];
-      }
-      else if (!Object.keys(spriteConfig).includes(spriteName)) {
-        console.log(`Invalid sprite name '${spriteName}'`);
-        spriteName = 'link';
       }
 
       var spriteData = fs.readFileSync(`sprites/${spriteName}.bin`);

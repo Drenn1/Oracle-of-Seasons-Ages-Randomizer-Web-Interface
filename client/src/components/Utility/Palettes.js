@@ -14,8 +14,7 @@ export default function () {
                 [0,0,0,217,92,97,236,190,166], // gold
                 [0,0,0,53,139,241,173,226,249], // blue (alt)
                 [0,0,0,234,75,55,248,197,110], // red (alt)
-                [], // Unused
-                [], // Unused
-                [0x55,0x55,0x55,0xaa,0xaa,0xaa,0xff,0xff,0xff], // 8 means random
+                [0x55,0x55,0x55,0xaa,0xaa,0xaa,0xff,0xff,0xff], // 6 means random
+                [0x55,0x55,0x55,0xaa,0xaa,0xaa,0xff,0xff,0xff], // 7 means default for chosen sprite
                 ];   
 }

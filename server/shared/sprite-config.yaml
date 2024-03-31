@@ -6,7 +6,7 @@ link:
 # Not a real sprite
 random:
   display: "Random"
-  defaultPalette: 8
+  defaultPalette: 7 # 6 = random, 7 = default for chosen sprite
   contributor: "???"
 
 # NOTE: File select harp-playing animation is probably broken for marin due to
