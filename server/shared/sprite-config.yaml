@@ -28,7 +28,7 @@ marin:
         15,0x35,0x01,
         0x7f,0x2e,0xff
       ]
-      # Harp animation
+    # Harp animation
     - agesLabel:    'animationData19faa'
       seasonsLabel: 'animationDataHarp'
       data: [
@@ -45,10 +45,12 @@ marin:
         0x01,0x36,0x81,
         0x7f,0x1c,0xff
       ]
+
 demonlink:
   defaultPalette: 5
   display: "Demonic Link"
   contributor: "Stewmat"
+
 likelike:
   defaultPalette: 3
   display: "Like-Like"
@@ -66,8 +68,8 @@ likelike:
     specialObject00GfxPointers:
       # Commented these out since they make no difference for like-like sprite,
       # but could a be useful reference
-      #84: [0x00, 'spr_link', 0x0080, 0x04], # Up standing frame: borrow left standing sprite
-      #86: [0x00, 'spr_link', 0x0080, 0x04], # Down standing frame: borrow left standing sprite
+      #84: [0x00, 'spr_link', 0x0080, 0x04] # Up standing frame: borrow left standing sprite
+      #86: [0x00, 'spr_link', 0x0080, 0x04] # Down standing frame: borrow left standing sprite
 
       128: [0x00, 'spr_link', 0x00c0, 0x04] # Up walking frame: borrow left walking sprite
       130: [0x00, 'spr_link', 0x00c0, 0x04] # Down walking frame: borrow left walking sprite
@@ -75,3 +77,36 @@ likelike:
       138: [0x00, 'spr_link', 0x1140, 0x04] # Down walking & holding frame: borrow left version
       168: [0x00, 'spr_link', 0x16c0, 0x04] # Moving up underwater: borrow left version
       170: [0x00, 'spr_link', 0x16c0, 0x04] # Moving down underwater: borrow left version
+
+nayru:
+  defaultPalette: 1
+  display: "Nayru"
+  contributor: "Natsuru, Stewmat"
+
+  # Nayru's harp animation is normal, but her flute animation is done by singing
+  # instead. Some animation hacks are needed.
+  # NOTE: Normally the flute animation data provides bit 6 (0x40) in its
+  # animParameter (3rd byte of an animation frame), which tells the game to cut
+  # the animation short for the unassigned strange flute, at 95 frames into the
+  # animation. In the process of re-jigging the animation we no longer have a
+  # line corresponding to frame 95. Doesn't really matter though, since the
+  # strange flute is always assigned to a companion in the randomizer. However,
+  # in the case that it wasn't, the animation would go on for far too long.
+  animationHacks:
+    - agesLabel:    'animationData19f90'
+      seasonsLabel: 'animationData19cf7'
+      data: [
+        60, 0x2d, 0x00,
+        30, 0x2c, 0x01,
+        60, 0x2f, 0x01,
+        30, 0x2c, 0x00,
+        60, 0x2d, 0x00,
+        15, 0x2c, 0x00,
+        0x7f, 0x2c, 0xff
+      ]
+
+  # Also for the flute animation - prevents her from moving left and right
+  gfxPointerHacks:
+    specialObject00GfxPointers:
+      45: [0x80, 'spr_link', 0x11c0, 0x04]
+      47: [0x81, 'spr_link', 0x11c0, 0x04]
