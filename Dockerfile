@@ -20,31 +20,10 @@ RUN npm i -g concurrently
 # Need non-root user to use node
 RUN /usr/sbin/adduser nonroot -h /home/nonroot -s /bin/sh -D
 
-# Copy clean clone of git repository to docker
-COPY clonedir/client /site/client
-COPY clonedir/server /site/server
-COPY clonedir/package.json /site/
-COPY /oracles-randomizer-ng/randomizer/version.go /site/oracles-randomizer-ng/randomizer/version.go
+# Set up /site directory where repo will be mounted
+RUN mkdir /site
 RUN chown -R nonroot /site
 WORKDIR /site
-
-# Install node dependencies
-USER nonroot
-RUN npm run install-both
-
-# Copy only what we need from the submodules into docker (.gbc, .sym files, and
-# the randomizer itself)
-RUN mkdir -p oracles-randomizer-ng/oracles-disasm
-COPY oracles-randomizer-ng/oracles-disasm/seasons.gbc oracles-randomizer-ng/oracles-disasm/seasons.sym \
-  oracles-randomizer-ng/oracles-disasm/ages.gbc oracles-randomizer-ng/oracles-disasm/ages.sym \
-  /site/oracles-randomizer-ng/oracles-disasm/
-COPY oracles-randomizer-ng/oracles-disasm/audio/common/*.txt \
-  /site/oracles-randomizer-ng/oracles-disasm/audio/common/
-COPY oracles-randomizer-ng/oracles-randomizer-ng /site/oracles-randomizer-ng/
-COPY roms/ages_clean.gbc roms/seasons_clean.gbc /site/roms/
-
-# Save status of volume (TODO: mongodb)
-#VOLUME /site
 
 USER root
 
