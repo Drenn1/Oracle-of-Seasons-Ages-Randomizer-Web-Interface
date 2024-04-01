@@ -104,7 +104,7 @@ class Sprite extends Component {
             </div>
           </div>
           {this.sprites ?
-           <div class="text-center">
+           <div className="text-center">
              Contributed by: {this.sprites[this.props.selectedSprite].contributor}
            </div>
            : <></>}

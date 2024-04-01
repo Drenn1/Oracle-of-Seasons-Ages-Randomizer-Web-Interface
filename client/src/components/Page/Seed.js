@@ -10,7 +10,7 @@ import {
 } from "react-router-dom";
 
 import {checkStore, getBuffer} from '../Utility/Storage';
-import Sprite from './Sprite';
+import Sprite from '../Common/Sprite';
 import Spinner from '../Spinner/Spinner';
 import FileSelect from '../Common/FileSelect';
 import Log from '../Log/Log';

@@ -2,11 +2,11 @@ import React, { Component } from 'react';
 import {BrowserRouter as Router, Route, Routes} from 'react-router-dom';
 import Container from 'react-bootstrap/Container';
 import axios from 'axios';
-import Header from './components/Header/Header';
-import Footer from './components/Footer/Footer';
-import Home from './components/Home/Home';
-import Randomize from './components/Randomize/Randomize';
-import Seed from './components/Seed/Seed';
+import Header from './components/Common/Header';
+import Footer from './components/Common/Footer';
+import Home from './components/Page/Home';
+import Randomize from './components/Page/Randomize';
+import Seed from './components/Page/Seed';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
