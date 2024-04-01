@@ -3,6 +3,9 @@
 
 FROM alpine:3.19
 
+ARG GID
+ARG UID
+
 RUN apk update
 RUN apk add nodejs npm
 
@@ -18,7 +21,8 @@ RUN mkdir -p /data/db
 RUN npm i -g concurrently
 
 # Need non-root user to use node
-RUN /usr/sbin/adduser nonroot -h /home/nonroot -s /bin/sh -D
+RUN /usr/sbin/addgroup -g $GID mygroup
+RUN /usr/sbin/adduser nonroot -h /home/nonroot --uid $UID -G mygroup -s /bin/sh -D
 
 # Set up /site directory where repo will be mounted
 RUN mkdir /site

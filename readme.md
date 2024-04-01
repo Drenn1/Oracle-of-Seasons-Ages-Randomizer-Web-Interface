@@ -1,17 +1,15 @@
 # OOS/A Randomizer Web Interface
 
-This is a web interface for the oracles randomizer originally written by
-Jaysee97. The randomizer itself was written by Jangler and Stewmat.
+This is a web interface for
+[oracles-randomizer-ng](https://github.com/Stewmath/oracles-randomizer-ng).
+Hosted online [here](https://oosarando.zeldahacking.net).
 
 
 ## Running the Web Interface
 
-Originally this web interface could run on either windows or linux, but
-currently only linux is supported. If you want to try it on windows you're on
-your own.
-
-This can run either in docker or directly on the host machine. If you're not
-doing any development, docker is recommended.
+You can run this on a linux machine, either in docker or directly on the host
+machine. Docker is recommended due to the tangled web of dependencies needed to
+build everything.
 
 
 ### With docker
@@ -32,78 +30,56 @@ git submodule update --init --recursive
 
 Place the clean roms "ages_clean.gbc" and "seasons_clean.gbc" in the "roms/" directory.
 
-Start the server with:
+Then run the following commands:
 
 ```
-sudo ./start-docker.sh
+./setup.sh build-docker # Build docker containers, should only need to do this once
+./setup.sh build-rando  # Build oracles-randomizer-ng and base roms
+./setup.sh start        # Run the webui on port 80
 ```
 
-This will use docker containers to automatically build oracles-randomizer-ng and oracles-disasm (no
-need to install golang, wla-dx, etc). Then it will start the server in another docker container,
-exposed on port 80.
+Do not run the commands as root, npm will complain (sudo should be fine).
+
+You can view the server logs with:
+
+```
+sudo docker logs rando-server-container
+```
+
+Stop the server with:
+
+```
+./setup.sh stop
+```
+
+Over time, you may get a pileup of unused docker images. You may want to free up
+some disk space with:
+
+```
+sudo docker image prune
+sudo docker container prune
+```
 
 
 ### Without docker
 
-You will need [Nodejs](https://nodejs.org/en/) for the back and front end dependencies:
+Aside from figuring out how to compile oracles-randomizer-ng and oracles-disasm,
+you'll need to install npm and mongod to run the webui.
+
+To install the back and front end dependencies:
 
 ```
-$ npm run install-both
+npm run install-both
 ```
 
 Also install "concurrently":
 
-$ sudo npm i -g concurrently
-
-
-#### Set up Base entries in DB
-You will need [Python](https://www.python.org/) for the db setup script, it is
-CPU intensive and takes roughly 10 minutes to run at this time. You will also
-need the module Naked installed. You will need to have your randomizer
-executable and vanilla roms renamed to OOA.blob and OOS.blob, as they are not
-provided in this repo.
-
 ```
-$ pip install Naked
+sudo npm i -g concurrently
 ```
 
-You will need to have mongoDB installed and running:
+Then run the server:
 
 ```
-# mongod
+npm run dev
 ```
-
-Then in the utility directory
-
-```
-On Linux/MacOSX
-$ mkdir ages seasons
-$ python3 dbBuild.py
-$ local
-$ y
-  -- or --
-On Windows Command Prompt
-$ mkdir ages seasons
-$ python dbBuild.py
-$ local
-$ y
-```
-
-
-#### Running the Web Interface (without docker)
-
-After all the npm modules are installed, front end compiled, and db entries created, go to the project root directory:
-
-With nodemon installed globally `npm i -g nodemon` (useful for live reload on edits on server side scripts)
-```
-$ npm run dev
-```
-
-Without nodemon install to run only, and manually restart after edits on server side
-```
-$ npm run both
-```
-
-## Future Goals
-* Plandomizer UI
-* Handle sprite selection options via backend or external json list
