@@ -23,7 +23,7 @@ class Sprite extends Component {
 
         // Grab images for all sprites
         for (let id of Object.keys(this.sprites)) {
-          fetch(`/img/${id}.gif`).then(res => {
+          fetch(`/img/sprite/${id}.gif`).then(res => {
             res.arrayBuffer().then(buffer => {
               spriteBuffers[id] = buffer;
               if (this.sprites.length === spriteBuffers.length){
@@ -61,7 +61,7 @@ class Sprite extends Component {
       return (
         <button key={id} value={id} className="dropdown-item"
                 onClick={e => this.setSprite(id, this.sprites[id].defaultPalette)}>
-          <img src={`/img/${id}.gif`} alt={`${sprite.display}-Sprite`} height="32" className="mr-4"/>
+          <img src={`/img/sprite/${id}.gif`} alt={`${sprite.display}-Sprite`} height="32" className="mr-4"/>
           <span className="font-weight-bold">{sprite.display}</span>
         </button>
       )

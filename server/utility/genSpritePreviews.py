@@ -51,7 +51,7 @@ def genSpriteImage(name):
     with open(f'server/sprites/{name}.bin', 'rb') as f:
         data = bytearray(f.read())
 
-    outFilename = f'client/public/img/{name}.gif'
+    outFilename = f'client/public/img/sprite/{name}.gif'
     paletteIndex = spriteConfig[name]['defaultPalette']
 
     img = Image.new('P', (16, 16), 0)
