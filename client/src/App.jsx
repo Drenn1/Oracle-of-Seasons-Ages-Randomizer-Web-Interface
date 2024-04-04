@@ -7,6 +7,7 @@ import Footer from './components/Common/Footer';
 import Home from './components/Page/Home';
 import Randomize from './components/Page/Randomize';
 import Seed from './components/Page/Seed';
+import Info from './components/Page/Info.mdx';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -37,6 +38,7 @@ class App extends Component {
               <Route exact path = "/" Component={this.passVersion(Home)} />
               <Route exact path = "/randomize" Component={this.passVersion(Randomize)} />
               <Route path = "/:game/:seed" Component={Seed} />
+              <Route path = "/info" Component={Info} />
             </Routes>
             <Footer version={this.state.version}/>
           </div>

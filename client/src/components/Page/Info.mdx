@@ -1,0 +1,130 @@
+import Container from 'react-bootstrap/Container';
+import Image from 'react-bootstrap/Image';
+import Card from 'react-bootstrap/Card';
+
+import {ngLink} from '../Utility/Links';
+
+
+<Container>
+
+First-time users, **READ THIS PAGE** (at least the first section!). This page contains important information which may not be immediately obvious if you haven't used this version of the randomizer before. General familiarity with the Zelda Oracle games is assumed.
+
+<Card>
+<Card.Header><h2>Essential Info</h2></Card.Header>
+<Card.Body>
+
+## Randomizer menu
+
+You can press the select button twice in quick succession to open the randomizer menu. If you did it properly, this menu will appear instead of the map.
+
+<Image src="/img/rando-menu.png" fluid alt="Rando menu" width="320"/>
+
+- Dungeon Items: Shows you the dungeon-specific items you have obtained (keys, compasses, maps). Useful when playing with keysanity enabled.
+- Warp to Start: If you get stuck somewhere and can't get out, select this option. There are many ways you could get stuck, especially in Ages, so this is important to know about.
+
+## Rings
+Vasu is out of a job. You now start with the L-3 ring box, and can access your ring list simply by moving your cursor to the ring box icon and pressing the A button. Rings don't need to be appraised, either.
+
+<Image src="/img/ring-box-l3.png" fluid alt="Ring box" width="320"/>
+
+</Card.Body>
+
+<Card.Header><h2>General Info</h2></Card.Header>
+<Card.Body>
+
+## What's randomized?
+
+- All chest contents are randomized.
+- Most other items are also randomized, with these exceptions:
+  - Gasha seeds and pieces of heart outside of chests (for balancing reasons)
+  - Renewable shop and business scrub items (bombs, shield, hearts, etc.)
+  - Advance shop items
+  - NPCs that give non-progression items in the vanilla game
+  - Fixed drops (from bushes, pots, etc.)
+  - Gasha nut contents (piece of heart is not randomized)
+  - Maple drops (piece of heart is not randomized)
+- The trading sequence is not randomized, however:
+  - In Seasons, the sword upgrade in lost woods *is* randomized. You can obtain
+    this without doing the trade sequence so long as you remember the solution
+    (keep going left as the seasons get warmer).
+  - In Ages, the first item in the trade sequence, where you would normally get
+    the Poe Clock near Spirit's Grave, is randomized. The sword upgrade from the
+    trading sequence is placed into the item pool instead of the poe clock
+    itself.
+- Seed trees are randomized, with no more than two trees of each type. Items
+  that use seeds for ammunition start with the type of seed that's on the
+  starting tree (in Horon Village / Lynna City).
+- Your animal companion (Ricky/Dimitri/Moosh) is chosen at random. Your flute
+  and the animal companion regions (Natzu in Seasons and Nuun in Ages) change to
+  match your assigned companion.
+  - In terms of flute locations, only the 150-rupee flute in the shop is
+  randomized; the other two usual means of getting a strange flute don't give
+  anything special. 
+- [Seasons] Default seasons are randomized.
+- [Optional] Dungeon shuffle and portal shuffle randomizes dungeon entrances and
+  subrosia portal destinations, respectively.
+- [Optional] Keysanity allows dungeon keys, maps, compasses, and slates to be
+  randomizer outside of their respective dungeons.
+- [Optional] Music shuffle randomizes music (optionally including custom
+  tracks).
+  
+## What's the goal?
+
+Obtain 8 essences, talk to the Maku Tree to obtain the Maku Seed, and defeat
+Onox/Veran.
+
+## File select menu shortcuts
+
+On the file select menu, you can press:
+
+- Select+Right to toggle music on and off.
+- Select+Left to switch from GBA palettes to GBC palettes. This only applies when playing on a GBA, as in this situation, palettes appear brightened to counter the original GBA's dark screen.
+  - The brightened palettes actually increase lag, particularly during screen transitions when diving underwater in Ages! This is another reason to turn them off.
+
+## Harp & flute animation skip
+
+While playing the harp or flute, press the A and B buttons simultaneously to skip playing the song and/or the timeportal animation. This can save a LOT of time.
+  
+</Card.Body>
+
+<Card.Header><h2>Oracle of Ages stuff</h2></Card.Header>
+<Card.Body>
+
+## Ambi's mystery seeds
+Queen Ambi desires mystery seeds above all else. Normally, you would exchange them for bombs in a cutscene. To save time, your reward is now provided by a red soldier NPC placed in deku forest. Simply talk to them to exchange your mystery seeds for your reward.
+
+<Image src="/img/ambi-soldier.png" fluid alt="Red soldier" width="320"/>
+
+## Dungeon 2's multiple entrances
+Dungeon 2 has entrances in the past and the present. The present entrance can be accessed by using the tune of currents/ages. This has the following implications:
+
+- When dungeon shuffle is *off*, you may be expected to use either entrance to access D2.
+- When dungeon shuffle is *on*, each entrance is independantly randomized to a different dungeon, meaning you need to check both. As there are 9 entrances but only 8 dungeons, one dungeon will have an alternative entrance somewhere. This is admittedly weird, and this behavior may change in the future.
+
+## Jabu-Jabu's water level
+In order to prevent softlocks, the water level in Jabu-Jabu's Belly resets whenever you exit and re-enter the dungeon. This ensures that you don't screw yourself over if you drain the water too early.
+
+## Drowning at a dungeon entrance
+You may see this peculiar thing happen where Link drowns when you attempt to enter a dungeon.
+
+<Image src="/img/dungeon-drowning.png" fluid alt="Entrance to D7" width="320"/>
+
+This is not a bug. This happens when dungeon entrance randomization is enabled and you attempt to enter jabu-jabu's belly without the mermaid suit. In other words, you're being denied entry until you obtain that item.
+
+## Rolling Ridge minigames
+The goron dancing and target carts minigames in Rolling Ridge must each be played twice to obtain all items, as each provides two key items in a normal game. The first goron dance can be done in either the present or the past; the second goron dance must be done in the past after obtaining the letter of introduction.
+
+</Card.Body>
+
+<Card.Header><h2>For more information, see:</h2></Card.Header>
+<Card.Body>
+
+- More detailed notes for {ngLink("ages", "doc/ages_notes.md")} and {ngLink("seasons", "doc/seasons_notes.md")}.
+- The [changelog](https://github.com/Stewmath/oracles-randomizer-ng/blob/master/CHANGELOG) for oracles-randomizer-ng.
+- {ngLink("A comparison of jangler's randomizer with oracles-randomizer-ng", "/doc/ng_differences.md")}.
+- If you have more questions, [join the discord](https://discord.gg/FcdGMWC) and you'll be sure to find some helpful people who'll answer them!
+
+</Card.Body>
+</Card>
+
+</Container>
