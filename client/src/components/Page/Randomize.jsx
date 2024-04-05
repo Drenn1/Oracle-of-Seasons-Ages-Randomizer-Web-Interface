@@ -20,7 +20,7 @@ const games = {
 function Randomize() {
   const navigate = useNavigate();
 
-  const initialOptionsState = Object.fromEntries(Object.entries(Options.get()).map(
+  const initialOptionsState = Object.fromEntries(Object.entries(Options).map(
     ([k, o]) => [k, o.type === "combo" ? o.values[0] : false]))
 
   const [game, setGame] = useState('Seasons');
@@ -84,7 +84,7 @@ function Randomize() {
       )
     })
     const optionComponents = [];
-    for (const [optName, opt] of Object.entries(Options.get(game))) {
+    for (const [optName, opt] of Object.entries(Options(game))) {
       var component;
       if (opt.type === "combo") { // Dropdown
         component =

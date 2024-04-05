@@ -1,5 +1,4 @@
 import Saver from 'file-saver';
-import {parseIPS} from './ParseIPS';
 import {readPointer,writePointer} from './RomHelper';
 
 const agesLinkObjectPaletteOffsets = [82446,82448,82450,82452,82454,82456,82458,82460,82462,82464];

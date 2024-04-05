@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Web Interface for Zelda Oracles Randomizer",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "start": "node index.js",
     "server": "nodemon index.js"

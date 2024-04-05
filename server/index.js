@@ -1,12 +1,12 @@
-const express = require('express');
+import express from 'express';
 const app = express();
 
-const path = require('path');
-const mongoose = require('mongoose');
-const bodyParser = require('body-parser');
-const {mongoDBurl}= require('./configs/db');
+import path from 'path';
+import mongoose from 'mongoose';
+import bodyParser from 'body-parser';
+import {mongoDBurl} from './configs/db.cjs';
 
-const version = require('./base/version');
+import version from './base/version.cjs';
 
 mongoose.connect(mongoDBurl, {useNewUrlParser: true}).then(db=>{
   console.log(`Connected to db`);
@@ -17,7 +17,7 @@ mongoose.connect(mongoDBurl, {useNewUrlParser: true}).then(db=>{
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 
-const api = require('./routes/api');
+import api from './routes/api.js';
 app.use('/api', api);
 
 // Serve static html in client/build if in production

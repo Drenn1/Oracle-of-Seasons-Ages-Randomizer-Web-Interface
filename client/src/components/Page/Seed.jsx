@@ -70,7 +70,7 @@ class Seed extends Component {
 
   getOptionsDisplay(gameTitle){
     const retData = [];
-    for (const [optID, opt] of Object.entries(Options.get(gameTitle))) {
+    for (const [optID, opt] of Object.entries(Options(gameTitle))) {
       const liClass = ['list-group-item', 'text-white'];
       const iClass = ['fas', 'mr-2'];
 

@@ -30,32 +30,30 @@ const optionList = {
   },
 };
 
-(function(exports){
-
   // Get the object containing the list of options, optional parameter for game
-  exports.get = function(game){
-    // Clone the option list
-    const sentOptions = {};
-    Object.assign(sentOptions, optionList);
+function getConfig(game) {
+  // Clone the option list
+  const sentOptions = {};
+  Object.assign(sentOptions, optionList);
 
-    if (game === "Ages" || game === "ooa"){
-      game = "ooa";
-    }
-    else if (game === "Seasons" || game === "oos") {
-      game = "oos";
-    }
-    else {
-      game = "both";
-    }
+  if (game === "Ages" || game === "ooa"){
+    game = "ooa";
+  }
+  else if (game === "Seasons" || game === "oos") {
+    game = "oos";
+  }
+  else {
+    game = "both";
+  }
 
-    // Filter out options not belonging to this game
-    if (game !== "both") {
-      for (const k of Object.keys(optionList).filter(
-        k => Object.hasOwn(optionList[k], "game") && optionList[k].game !== game)) {
-        delete sentOptions[k];
-      }
+  // Filter out options not belonging to this game
+  if (game !== "both") {
+    for (const k of Object.keys(optionList).filter(
+      k => Object.hasOwn(optionList[k], "game") && optionList[k].game !== game)) {
+      delete sentOptions[k];
     }
-    return sentOptions
-  };
+  }
+  return sentOptions;
+};
 
-})(typeof exports === 'undefined'? this['options']={}: exports);
+export default getConfig;

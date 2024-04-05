@@ -1,17 +1,18 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const exec = require('child_process').execFile;
-const fs = require('fs');
-const readline = require('readline');
-const YAML = require('yaml')
+import child_process from 'child_process';
 
-const OOS = require('../models/OOSSeed');
-const OOA = require('../models/OOASeed');
-const logParse = require('../utility/logparse');
-const gb = require('../utility/gb');
-const Options = require('../shared/options')
+import fs from 'fs';
+import readline from 'readline';
+import YAML from 'yaml';
 
-const version = require('../base/version');
+import OOS from '../models/OOSSeed.cjs';
+import OOA from '../models/OOASeed.cjs';
+import logParse from '../utility/logparse.cjs';
+import gb from '../utility/gb.cjs';
+import Options from '../shared/options.mjs';
+
+import version from '../base/version.cjs';
 
 const randoRoot = '../oracles-randomizer-ng/';
 const baseRomDir = '../roms/';
@@ -38,8 +39,9 @@ function loadSymbols(romFile) {
   var regex = /^([0-9a-f]{2}):([0-9a-f]{4}) (\S+)$/;
   var symbolMap = {};
 
-  for (line of fileContent.split('\n')) {
-    if (m = regex.exec(line)) {
+  for (let line of fileContent.split('\n')) {
+    let m = regex.exec(line);
+    if (m) {
       const bank = parseInt(m[1], 16);
       const pointer = parseInt(m[2], 16);
       const name = m[3];
@@ -104,7 +106,7 @@ function getBasePatch(game) {
 
   patchData.set('length', randoRom.length);
   for (let i=0; i<randoRom.length; i++) {
-    b = 0;
+    let b = 0;
     if (i < vanillaRom.length)
       b = vanillaRom.readUInt8(i);
     if (b != randoRom.readUInt8(i)) {
@@ -148,7 +150,7 @@ router.post('/randomize', (req,res)=>{
   const randoName = process.env.OS == "Windows_NT" ? "oracles-randomizer-ng.exe" : "oracles-randomizer-ng";
   const randoExec = randoRoot + randoName;
   const baseRomName = game === 'oos' ? 'seasons' : 'ages';
-  const gameFile = randoRoot + `oracles-disasm/${baseRomName}.gbc`
+  const gameFile = randoRoot + `oracles-disasm/${baseRomName}.gbc`;
 
   // Get options for execution arguments and seed string
   optionList = Options.get(game);
@@ -181,7 +183,7 @@ router.post('/randomize', (req,res)=>{
   // then second pass add race and plan
   pass1.push('-noui', gameFile);
   console.log(`Running randomizer: ${randoExec} ${pass1.join(' ')}`)
-  exec(randoExec, pass1, (err, out, stderr) => {
+  child_process.execFile(randoExec, pass1, (err, out, stderr) => {
     if (err) {
       console.log("error");
       console.log(err);
@@ -388,8 +390,8 @@ router.post('/:game/:id/patch', (req,res)=>{
           palette = options.palette;
       }
       for (let i=0; i<10; i++) {
-        a = paletteBaseAddr + i * 2 + 1;
-        b = readRomByte(a);
+        const a = paletteBaseAddr + i * 2 + 1;
+        let b = readRomByte(a);
         b |= palette;
         patchByte(a, b);
       }
@@ -412,7 +414,7 @@ router.post('/:game/:id/patch', (req,res)=>{
             ['oamData481e6', 'oamData481f3'] :
             ['oamData4c1e6', 'oamData4c1f3'])
               .map(a => symbols[a] + 12);
-        for (a of harpPaletteAddrs)
+        for (let a of harpPaletteAddrs)
           patchByte(a, readRomByte(a) & 0xf8);
       }
 
@@ -535,4 +537,4 @@ router.put('/:game/:id/:unlock', (req,res)=>{
   })
 });
 
-module.exports = router;
+export default router;
