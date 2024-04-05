@@ -168,6 +168,7 @@ class Seed extends Component {
       })
       .catch(err => {
         console.log('Unable to retrieve');
+        console.log(err);
       })
   }
 
