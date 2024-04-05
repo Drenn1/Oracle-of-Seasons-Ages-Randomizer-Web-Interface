@@ -153,12 +153,14 @@ router.post('/randomize', (req,res)=>{
   const gameFile = randoRoot + `oracles-disasm/${baseRomName}.gbc`;
 
   // Get options for execution arguments and seed string
-  optionList = Options.get(game);
-  execArgs = []
-  seedArgs = "";
+  const optionList = Options(game);
+  let options = {}
+  let execArgs = []
+  let seedArgs = "";
   for (const option of Object.keys(optionList)) {
+    let value;
     if (optionList[option].type === "combo") {
-      let value = String(req.body.options[option]);
+      value = String(req.body.options[option]);
       if (!optionList[option].values.includes(value)) {
         console.log(`WARNING: Value '${value}' for option '${option}' not valid`);
         value = optionList[option].values[0];
@@ -169,10 +171,14 @@ router.post('/randomize', (req,res)=>{
         seedArgs += `-${option}${value}`
       }
     }
-    else if (req.body.options[option] === true) {
-      execArgs.push("-" + option);
-      seedArgs += "-" + option;
+    else {
+      value = req.body.options[option] === true;
+      if (value) {
+        execArgs.push("-" + option);
+        seedArgs += "-" + option;
+      }
     }
+    options[option] = value;
   }
   if (seedArgs.length >= 1) {
     seedArgs = seedArgs.substring(1);
@@ -208,7 +214,7 @@ router.post('/randomize', (req,res)=>{
       const newSeedBase = {
         seed: encodedSeed,
         baseSeed: seed,
-        options: req.body.options,
+        options: options,
         spoiler: parsedLog,
         originalLog: logFileData,
         locked: req.body.race || false,
