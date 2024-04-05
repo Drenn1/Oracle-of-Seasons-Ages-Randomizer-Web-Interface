@@ -263,8 +263,8 @@ class Seed extends Component {
                 }}
               >
                 {this.state.downloading ?
-                 <><span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                   <span class="sr-only">Downloading...</span></>
+                 <><span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                   <span className="sr-only">Downloading...</span></>
                  : "Download Rom"}
               </button>
               <button

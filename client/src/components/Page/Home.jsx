@@ -10,7 +10,7 @@ class Home extends Component {
             <h2 className="text-center">Version: {this.props.version}</h2>
           </div>
           <div className="card-body">
-            <h2><div class="text-center"><a href="/randomize">Click here to begin!</a></div></h2>
+            <h2><div className="text-center"><a href="/randomize">Click here to begin!</a></div></h2>
             <h3>About</h3>
             <p>This website will allow you to randomize an Oracle of Ages or Seasons ROM; in other words, this shuffles all item locations in the game, along with many other things such as seasons, dungeons, music, and more.</p>
             <p>This particular version of the randomizer is <b>Oracles-Randomizer-NG</b>, Stewmat's fork of the Oracles-Randomizer supporting advanced features such as keysanity and cross-items. Source code available <a href="https://github.com/Stewmath/Oracle-of-Seasons-Ages-Randomizer-Web-Interface">here</a>.
