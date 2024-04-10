@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 #
 # This will build oracles-randomizer-ng and the baseroms from oracles-disasm.
 # Assumes you've run "build-docker.sh" at least once to generate the docker
