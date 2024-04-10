@@ -1,11 +1,4 @@
 #!/usr/bin/env bash
-#
-# This will build oracles-randomizer-ng and the baseroms from oracles-disasm.
-# Assumes you've run "build-docker.sh" at least once to generate the docker
-# containers that this uses.
-#
-# This does not attempt to check out the "correct" version of either repository,
-# it simply works with whatever it's given.
 
 ASSEMBLER_IMAGE_BASE=rando-assembler-base
 ASSEMBLER_IMAGE=rando-assembler
