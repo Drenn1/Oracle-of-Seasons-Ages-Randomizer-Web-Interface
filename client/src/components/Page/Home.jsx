@@ -15,6 +15,7 @@ class Home extends Component {
             <p>This website will allow you to randomize The Legend of Zelda: Oracle of Ages or Seasons; in other words, this shuffles all item locations in the game, along with many other things such as seasons, dungeons, music, and more.</p>
             <p>This particular version of the randomizer is <b>Oracles-Randomizer-NG</b>, Stewmat's fork of the Oracles-Randomizer supporting advanced features such as keysanity and cross-items. Source code available <a href="https://github.com/Stewmath/Oracle-of-Seasons-Ages-Randomizer-Web-Interface">here</a>.
             </p>
+            <p>See the <a href="/info">info page</a> for more information!</p>
 
             <h3>Randomizer forks</h3>
             <p>A number of different forks exist of the randomizer, which can cause some confusion. I recommend using one of the following:</p>
@@ -28,9 +29,6 @@ class Home extends Component {
               <li>Oracles-Randomizer (the original): Written by Jangler, it is battle-tested and stable, but not receiving updates these days. However, it does support multiworld, unlike NG. Can be used through <a href="https://cemulate.github.io/oracles-randomizer-web/">cemulate's web interface</a>, or by <a href="https://github.com/jangler/oracles-randomizer/releases">running it locally.</a></li>
               <li>Entrance randomizer: An old fork of jangler's randomizer which randomizes all entrances and exits. Also accessible through <a href="https://cemulate.github.io/oracles-randomizer-web/">cemulate's web interface</a>.</li>
             </ul>
-
-            <h3>Stuck?</h3>
-            <p>Join the <a href="https://discord.gg/FcdGMWC">Oracles Discord</a> and hop into the #randomizer channel! There are several helpful people there that can help you out.</p>
           </div>
         </div>
       </div>

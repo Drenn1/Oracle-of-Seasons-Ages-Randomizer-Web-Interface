@@ -6,9 +6,9 @@ import Tooltip from 'react-bootstrap/Tooltip';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
+import Card from 'react-bootstrap/Card';
 
 import Spinner from '../Spinner/Spinner';
-import {v4 as uuidv4} from 'uuid';
 import axios from 'axios';
 import Options from '../shared/options';
 
@@ -25,24 +25,7 @@ function Randomize() {
 
   const [game, setGame] = useState('Seasons');
   const [options, setOptions] = useState(initialOptionsState);
-  const [race, setRace] = useState(false);
-  const [unlock, setUnlock] = useState(uuidv4().replace(/-/g,''));
-  const [timeout, setTimeout] = useState(0);
   const [generating, setGenerating] = useState(false);
-
-  function toggleRace(e){
-    setRace(e.target.checked);
-  }
-
-  function copyUnlockToClipboard(e){
-    e.preventDefault();
-    const tempEl = document.createElement("textarea");
-    document.body.appendChild(tempEl);
-    tempEl.value = unlock;
-    tempEl.select();
-    document.execCommand('copy');
-    document.body.removeChild(tempEl);
-  }
 
   function generate(e){
     setGenerating(true);
@@ -51,12 +34,6 @@ function Randomize() {
     const data = {
       game: game === "Seasons" ? 'oos' : 'ooa',
       options: options,
-      race: race,
-    }
-
-    if (race) {
-      data.unlockCode = unlock;
-      data.unlockTimeout = timeout === 0 ? 14400 : timeout * 60;
     }
 
     axios.post('/api/randomize', data)
@@ -126,40 +103,15 @@ function Randomize() {
       );
     }
 
-    let raceBody = (<div></div>);
-
-    if (race){
-      raceBody = (
-        <div className="card-body">    
-          <div className="row">
-            <div className="col">
-              <h6>Unlock Code</h6>
-              <div className="input-group">
-                <div className="form-control">{unlock}</div>
-                <div className="input-group-append">
-                  <button className="btn btn-primary" onClick={copyUnlockToClipboard}><i className="fas fa-copy mr-2"></i>Copy to Clipboard</button>
-                </div>
-              </div>
-              <small className="text-black-50 mt-3">Needed to unlock the spoiler sooner. Note: once you generate the seed, you will NOT have access to this code, so please copy this first, otherwise you will have to wait the specified time before the log is available.</small>
-            </div>
-            <div className="col">
-              <div className="form-group">
-                <h6>Spoiler Lock Duration</h6>
-                <input type="number" name="timeout" id="timeout" className="form-control"
-                       onChange={(e) => setTimeout(parseInt(e.target.value))} placeholder="0" min="0"/>
-              </div>             
-              <small className="text-black-50 mt-3">How long in minutes before the spoiler unlocks (default: 240 minutes = 4 hours)</small>
-            </div>
-          </div>
-        </div>
-      )
-    }
-
     const header = generating ? `Making Oracle of ${game} Seed` : `Randomize Oracle of ${game}`
     let randoBody = (
-      <div className="card-body">
+      <Card.Body>
+        <div className="mb-3">
+          <p>Check the <a href="/info">info page</a> if this is your first time!</p>
+          <p>Hover over the option names for more information.</p>
+        </div>
         <div className="row mb-2">
-          <div className="col-sm">
+          <div className="col">
             <div className="btn-group btn-group-toggle" id="game-selector" data-toggle="buttons">
               {gameToggle}
             </div>
@@ -170,35 +122,28 @@ function Randomize() {
             {optionComponents}
           </Container>
         </div>
-        <div className="card mb-3">
-          <div className="card-header">
-            <div className="custom-control custom-switch">
-              <input type="checkbox" name="" id="race" onClick={toggleRace} className="custom-control-input"></input>
-            </div>
-          </div>  
-          {raceBody}
-        </div>
-        <button className="btn btn-primary btn-lg btn-block" onClick={generate}>Randomize {game}</button>
-      </div>
+        <button className="btn btn-primary btn-lg btn-block mt-3"
+                onClick={generate}>Randomize {game}</button>
+      </Card.Body>
     )
 
     if (generating){
       randoBody = (
-        <div className="card-body">
+        <Card.Body>
           <Spinner />
-        </div>
+        </Card.Body>
       )
     }
 
     return (
-      <div className="container-fluid" id="base">
-        <div className="card">
+      <Container>
+        <Card>
           <div className="card-header bg-header">
             <h2>{header}</h2>
           </div>
           {randoBody}
-        </div>
-      </div>
+        </Card>
+      </Container>
     )
   }
 
