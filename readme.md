@@ -19,7 +19,7 @@ Ensure docker is installed (obviously). This should be the only dependency.
 Download the repository:
 
 ```
-git clone --recursive https://github.com/Stewmath/Oracle-of-Seasons-Ages-Randomizer-Web-Interface
+git clone --recursive https://github.com/Stewmath/oracles-randomizer-ng-webui
 ```
 
 Or if you've already downloaded it, ensure that all submodules are checked out:
