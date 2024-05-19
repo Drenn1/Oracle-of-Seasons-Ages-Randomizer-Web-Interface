@@ -71,7 +71,7 @@ function saveSeed(res, game, seedBase, romFile, files) {
   // Read changed data (TODO: make more efficient? Could have the
   // randomizer output an IPS patch or something instead of checking
   // every single byte in the ROM)
-  console.assert(rom.length == origRom.length);
+  console.assert(rom.length == origRom.length, "Bad ROM length");
   for (let i=0; i<rom.length; i++) {
     if (origRom.readUInt8(i) != rom.readUInt8(i)) {
       seedData.set(i.toString(), rom.readUInt8(i).toString());

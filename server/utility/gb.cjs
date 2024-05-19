@@ -1,18 +1,25 @@
 // Helper functions for gameboy-related stuff (pointer arithmetic, etc)
 
 function ptrToAddr(bank, pointer) {
-  console.assert(pointer >= 0 && pointer < 0x10000);
+  console.assert(pointer >= 0 && pointer < 0x10000,
+                 `Bad GB pointer: ${bank.toString(16)}:${pointer.toString(16)}`);
 
   // RAM (ignore bank number, we'll probably never reference this anyway)
   if (pointer >= 0x8000)
     return pointer;
   // ROM
   else if (bank == 0) {
-    console.assert(pointer < 0x4000);
-    return pointer;
+    // Technically it's possible for a bank 0 address to be from 0x4000-0x7fff,
+    // not just 0x0000-0x3fff. WLA-DX's linker can arrange things like this when
+    // a superfree section in "slot 1" is placed in bank 0. Noting this here
+    // because this assertion previously checked for "pointer < 0x4000".
+    console.assert(pointer < 0x8000,
+                 `Bad GB pointer: ${bank.toString(16)}:${pointer.toString(16)}`);
+    return pointer & 0x3fff;
   }
   else {
-    console.assert(pointer >= 0x4000 && pointer < 0x8000);
+    console.assert(pointer >= 0x4000 && pointer < 0x8000,
+                 `Bad GB pointer: ${bank.toString(16)}:${pointer.toString(16)}`);
     return bank * 0x4000 + (pointer - 0x4000);
   }
 }
