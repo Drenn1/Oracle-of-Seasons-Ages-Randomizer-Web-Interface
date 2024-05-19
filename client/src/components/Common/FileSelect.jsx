@@ -37,10 +37,12 @@ function FileSelect(props) {
 
   // Should only display error message on hash not matching. Should disappear on game change.
   const shouldDisplayError = failing && game === props.game;
-  const text = shouldDisplayError ? `Not a valid Oracle of ${props.game} rom`: `Select Oracle of ${props.game} Rom (English)`;
+  const text = shouldDisplayError
+        ? `Not a valid Oracle of ${props.game} rom`
+        : `Select Oracle of ${props.game} Rom (English)`;
   const cName = ['custom-file-label'];
 
-  if (shouldDisplayError){
+  if (shouldDisplayError) {
     cName.push('bg-danger', 'text-light')
   }
 
