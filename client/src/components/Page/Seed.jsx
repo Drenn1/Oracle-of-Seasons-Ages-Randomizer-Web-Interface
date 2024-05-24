@@ -24,14 +24,13 @@ function Seed() {
   const [loading, setLoading] = useState(true);
   const [downloading, setDownloading] = useState(false);
   const [seedData, setSeedData] = useState(null);
-  const [game, setGame] = useState(null);
   const [sprite, setSprite] = useState('link');
   const [palette, setPalette] = useState(0);
   const [autoMermaid, setAutoMermaid] = useState(true);
   const [valid, setValid] = useState(false);
 
-  function checkGame(){
-    checkStore(game || "Seasons", setValid);
+  function gameStorageLabel() {
+    return params.game === "oos" ? "Seasons" : "Ages";
   }
 
   function patchAndDownload(buffer, game, seed) {
@@ -96,19 +95,17 @@ function Seed() {
   useEffect(() => {
     const gameCode = params.game;
     const seed = params.seed;
-    const storageLabel = game === 'oos' ? 'Seasons' : 'Ages';
     axios.get(`/api/seed/${gameCode}/${seed}`)
       .then(res => {
         setLoading(false);
         setSeedData(res.data);
-        setGame(storageLabel);
       })
       .catch(err => {
         console.log('Unable to retrieve');
         console.log(err);
       })
 
-    checkGame();
+    checkStore(gameStorageLabel(), setValid);
   }, []);
 
   function render() {
@@ -192,7 +189,7 @@ function Seed() {
                 disabled={!valid}
                 onClick={e => {
                   setDownloading(true);
-                  getBuffer(game, gameCode, seed, patchAndDownload)
+                  getBuffer(gameStorageLabel(), gameCode, seed, patchAndDownload)
                 }}
               >
                 {downloading ?
@@ -204,14 +201,14 @@ function Seed() {
                 type="button"
                 className="btn btn-primary ml-2"
                 disabled={!valid}
-                onClick={e=>getBuffer(game, gameCode, seed, downloadLog)}
+                onClick={e=>getBuffer(gameStorageLabel(), gameCode, seed, downloadLog)}
               >
                 Download Log
               </button>
             </div>
             <div className="col-sm">
-              <FileSelect game={gameCode === 'oos' ? 'Seasons' : 'Ages'}
-              inline={true} checkGame={checkGame}
+              <FileSelect game={gameStorageLabel()}
+              inline={true} setValid={setValid}
               valid={valid}/>
             </div>
           </div>
