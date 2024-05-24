@@ -5,6 +5,7 @@ import child_process from 'child_process';
 import fs from 'fs';
 import readline from 'readline';
 import YAML from 'yaml';
+import * as bps from 'bps';
 
 import OOS from '../models/OOSSeed.cjs';
 import OOA from '../models/OOASeed.cjs';
@@ -93,28 +94,15 @@ function saveSeed(res, game, seedBase, romFile, files) {
   });
 }
 
-// Gets the patch data between a vanilla rom and the disassembly's generated ROM
+// Gets the bps patch between a vanilla rom and the disassembly's generated ROM
 // (pre-randomized but with all code patches needed for rando).
-// This is really inefficient... should use something like BPS instead of
-// tracking individual byte changes...
 function getBasePatch(game) {
   const baseRomName = game === 'oos' ? 'seasons' : 'ages';
   const randoRom = fs.readFileSync(randoRoot + `oracles-disasm/${baseRomName}.gbc`);
   const vanillaRom = fs.readFileSync(baseRomDir + `${baseRomName}_clean.gbc`);
 
-  const patchData = new Map();
-
-  patchData.set('length', randoRom.length);
-  for (let i=0; i<randoRom.length; i++) {
-    let b = 0;
-    if (i < vanillaRom.length)
-      b = vanillaRom.readUInt8(i);
-    if (b != randoRom.readUInt8(i)) {
-      patchData.set(Number(i), Number(randoRom.readUInt8(i)));
-    }
-  }
-
-  return patchData;
+  const bpsInstructions = bps.build(vanillaRom, randoRom);
+  return bps.serialize(bpsInstructions).buffer;
 }
 
 // Generate the string that will uniquely identify this generated ROM. This will
@@ -252,7 +240,7 @@ router.post('/randomize', (req,res)=>{
   });
 });
 
-router.get('/:game/:id', (req,res)=>{
+router.get('/seed/:game/:id', (req,res)=>{
   /*
   * Ignores everything from req.body
   * 
@@ -315,7 +303,7 @@ router.get('/:game/:id', (req,res)=>{
   })
 });
 
-router.post('/:game/:id/patch', (req,res)=>{
+router.post('/patch/:game/:id', (req,res)=>{
   /*
   * Expects from req.body:
   *   options:       Dict of post-randomization options
@@ -338,24 +326,16 @@ router.post('/:game/:id/patch', (req,res)=>{
 
   seedCollection.findOne({seed: req.params.id}).then(seed=>{
     if(seed) {
-      // Merge base patch and seed-specific data into a single map
-      const basePatch = basePatches[game];
-      const newPatch = {};
-
-      for (const [key, value] of basePatch) {
-        newPatch[key] = value;
-      }
-      for (const [key, value] of Object.entries(seed.patchData)) {
-        newPatch[key] = value;
-      }
+      // Make a deep copy of the data
+      const patchData = JSON.parse(JSON.stringify(seed.patchData));
 
       // Post-randomization options
       const options = req.body;
       const symbols = symbolMaps[game];
 
       const readRomByte = (addr) => {
-        if (addr in newPatch)
-          return newPatch[addr];
+        if (addr in patchData)
+          return patchData[addr];
         else if (addr >= baseRandoRom[game].length)
           return 0;
         else
@@ -363,7 +343,7 @@ router.post('/:game/:id/patch', (req,res)=>{
       };
 
       function patchByte(a, b) {
-        newPatch[a] = b;
+        patchData[a] = b;
       }
 
       // Careful not to overwrite randomization settings other than "auto mermaid suit" here
@@ -484,7 +464,7 @@ router.post('/:game/:id/patch', (req,res)=>{
             word += data[2]; // offset within data file
             word |= data[3]; // Size of data (divided by 16)
             // Relative bank number (should be 0 or 1))
-            word |= gb.addrToBank(symbols[data[1]]) - gb.addrToBank(symbols['gfxDataBank1a'])
+            word |= gb.addrToBank(symbols[data[1]]) - gb.addrToBank(symbols['gfxDataBank1a']);
 
             patchByte(addr + 0, data[0]);
             patchByte(addr + 1, word & 0xff);
@@ -493,10 +473,12 @@ router.post('/:game/:id/patch', (req,res)=>{
         });
       }
 
-      const response = {
-        patch: newPatch
-      };
+      // patchData is sent inefficiently in the response as a dictionary of
+      // integers in string form, however, this isn't a huge deal since the far
+      // larger "base patch" is sent efficiently with BPS.
+      const response = {patch: patchData}
 
+      // Set content type to binary data
       res.send(response);
     }}).catch(err => {
       console.log(err)
@@ -504,46 +486,12 @@ router.post('/:game/:id/patch', (req,res)=>{
     });
 });
 
-router.put('/:game/:id/:unlock', (req,res)=>{
-  /*
-  * Ignores everything from req.body
-  * 
-  * :game should be equal to 'oos' or 'ooa' else it returns an error
-  * :id is the encoded seed id
-  * :unlock is the code to be used to make the spoiler accessible
-  * 
-  * Returns an object with the following key:
-  *   unlocked: Boolean
-  */
-
-  const {game, id, unlock} = req.params;
-  let seedCollection;
-  switch (game){
-    case "ooa":
-      seedCollection = OOA;
-      break;
-    case "oos":
-      seedCollection = OOS;
-      break
-    default:
-      res.status(404).send("Seed not found");
-  }
-
-  seedCollection.findOne({seed: id}).then(seed=>{
-    if(seed){
-      if (seed.unlockCode !== unlock){
-        res.status(403).json({unlocked: false});
-      } else {
-        seed.locked = false;
-        seed.save().then(saved => res.json({unlocked: true})).catch(err => res.send('error saving'));
-      }
-    } else{
-      res.send('unable to find seed');
-    }
-  }).catch(err =>{
-    console.log(err)
-    res.send('unable to locate');
-  })
+router.get('/basepatch/:game', (req,res)=>{
+  const game = req.params.game;
+  const bpsPatch = basePatches[game];
+  // Set content type to binary data
+  res.setHeader('Content-Type', 'application/octet-stream');
+  res.send(Buffer(bpsPatch));
 });
 
 export default router;

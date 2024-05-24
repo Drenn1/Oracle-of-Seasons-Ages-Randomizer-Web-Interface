@@ -1,3 +1,5 @@
+import * as bps from 'bps';
+
 import Saver from 'file-saver';
 import {readPointer,writePointer} from './RomHelper';
 
@@ -19,16 +21,18 @@ function finalize(rom_array, romName){
   Saver.saveAs(finishedRom, `${romName}.gbc`);
 }
 
-export default function(game, vanilla, seedData, patchData, seed) {
-  const rom_array = new Uint8Array(Number(patchData['length']));
-  rom_array.set(new Uint8Array(vanilla));
-
+export default function(game, vanilla, bpsPatch, seedPatch, seed) {
   const romName = 'webrando_' + seed;
 
-  for (const [key, value] of Object.entries(patchData)) {
-    if (key === 'length')
-      continue;
+  // Apply BPS patch (base rando rom)
+  //bpsPatch = new TextEncoder().encode(bpsPatch);
+  const bpsInstructions = bps.parse(new Uint8Array(bpsPatch)).instructions;
+  const rom_array = bps.apply(bpsInstructions, new Uint8Array(vanilla));
+
+  // Apply seed-specific patch
+  for (const [key, value] of Object.entries(seedPatch)) {
     rom_array[Number(key)] = Number(value);
   }
+
   finalize(rom_array, romName);
 }

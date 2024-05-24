@@ -40,12 +40,15 @@ function Seed() {
       palette: palette,
       autoMermaid: autoMermaid,
     }
-    axios.post(`/api/${game}/${seed}/patch`, cosmeticOptions)
-         .then(res => {
-           Patcher(game, buffer, seedData, res.data.patch, seed);
-           setDownloading(false);
-         }).catch(err =>{
-           console.log(err);
+    axios.get(`/api/basepatch/${game}`, { responseType: 'arraybuffer' })
+         .then(res1 => {
+           axios.post(`/api/patch/${game}/${seed}`, cosmeticOptions)
+                .then(res2 => {
+                  Patcher(game, buffer, res1.data, res2.data.patch, seed);
+                  setDownloading(false);
+                }).catch(err =>{
+                  console.log(err);
+                });
          });
   }
 
@@ -94,7 +97,7 @@ function Seed() {
     const gameCode = params.game;
     const seed = params.seed;
     const storageLabel = game === 'oos' ? 'Seasons' : 'Ages';
-    axios.get(`/api/${gameCode}/${seed}`)
+    axios.get(`/api/seed/${gameCode}/${seed}`)
       .then(res => {
         setLoading(false);
         setSeedData(res.data);
