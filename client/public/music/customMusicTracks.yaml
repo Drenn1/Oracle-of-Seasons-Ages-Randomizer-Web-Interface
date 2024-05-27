@@ -1,0 +1,75 @@
+musLinebeck:
+  preview: "linebeck.mp3"
+  name: "Linebeck's Theme"
+  source: "The Legend of Zelda: Phantom Hourglass"
+  author: "ZerotoKoops"
+musInTheFields:
+  preview: "inTheFields.mp3"
+  name: "In the Fields"
+  source: "The Legend of Zelda: Spirit Tracks"
+  author: "ZerotoKoops"
+musSacredGrove:
+  preview: "sacredGrove.mp3"
+  name: "Sacred Grove"
+  source: "The Legend of Zelda: Twilight Princess"
+  author: "ZerotoKoops"
+musGerudoValley:
+  preview: "gerudoValley.mp3"
+  name: "Gerudo Valley"
+  source: "The Legend of Zelda: Ocarina of Time"
+  author: "ZerotoKoops"
+musLostWoods:
+  preview: "lostWoods.mp3"
+  name: "Lost Woods"
+  source: "The Legend of Zelda: Ocarina of Time"
+  author: "ZerotoKoops"
+musDragonRoostIsland:
+  preview: "dragonRoostIsland.mp3"
+  name: "Dragon Roost Island"
+  source: "The Legend of Zelda: The Wind Waker"
+  author: "ZerotoKoops"
+musSanctuary:
+  preview: "sanctuary.mp3"
+  name: "Sanctuary"
+  source: "The Legend of Zelda: A Link to the Past"
+  author: "ZerotoKoops"
+musFallingRain:
+  preview: "fallingRain.mp3"
+  name: "Falling Rain"
+  source: "The Legend of Zelda: A Link to the Past"
+  author: "ZerotoKoops"
+musAttackingVahNaboris:
+  preview: "attackingVahNaboris.mp3"
+  name: "Attacking Vah Naboris"
+  source: "The Legend of Zelda: Breath of the Wild"
+  author: "ZerotoKoops"
+musKassThemeShort:
+  preview: "kassThemeShort.mp3"
+  name: "Kass' Theme (Short)"
+  source: "The Legend of Zelda: Breath of the Wild"
+  author: "ZerotoKoops"
+musOverthereStair:
+  preview: "overthereStair.mp3"
+  name: "Overthere Stair"
+  source: "Super Paper Mario"
+  author: "ZerotoKoops"
+musTheGreatPalace:
+  preview: "theGreatPalace.mp3"
+  name: "The Great Palace"
+  source: "Zelda II: The Adventure of Link"
+  author: "ZerotoKoops"
+musBlackMist:
+  preview: "blackMist.mp3"
+  name: "Black Mist"
+  source: "The Legend of Zelda: A Link to the Past"
+  author: "ZerotoKoops"
+musOutsetIsland:
+  preview: "outsetIsland.mp3"
+  name: "Outset Island"
+  source: "The Legend of Zelda: The Wind Waker"
+  author: "ZerotoKoops"
+musTalTalHeights:
+  preview: "talTalHeights.mp3"
+  name: "Tal Tal Heights"
+  source: "The Legend of Zelda: Link's Awakening"
+  author: "ZerotoKoops"

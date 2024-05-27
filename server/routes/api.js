@@ -86,7 +86,7 @@ function saveSeed(res, game, seedBase, romFile, files) {
     // Remove generated files and free some space
     files.forEach(file => fs.unlinkSync(file))
     console.log("patch created");
-    return res.send(`/${game}/${newSeed.seed}`);
+    return res.send(`/seed/${game}/${newSeed.seed}`);
   })
   .catch(err => {
     console.log("Error saving seed to database:")
