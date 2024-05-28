@@ -145,7 +145,7 @@ function Seed() {
 
       bodyContent = (
         <div className="container">
-          <a href={`/${gameCode}/${seed}`}>Shareable Link</a>
+          <a href={`/seed/${gameCode}/${seed}`}>Shareable Link</a>
           <div className="row">
             <div className="col-sm">
               <div className="card">
