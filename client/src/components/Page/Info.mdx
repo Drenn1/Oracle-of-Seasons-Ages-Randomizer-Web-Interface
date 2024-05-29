@@ -2,7 +2,7 @@ import Container from 'react-bootstrap/Container';
 import Image from 'react-bootstrap/Image';
 import Card from 'react-bootstrap/Card';
 
-import {ngLink} from '../Utility/Links';
+import NgLink from '../Utility/Links';
 
 
 <Container>
@@ -116,12 +116,21 @@ The goron dancing and target carts minigames in Rolling Ridge must each be playe
 
 </Card.Body>
 
+<Card.Header><h2>Frequently Asked Questions</h2></Card.Header>
+<Card.Body>
+
+## Are linked games supported?
+
+No. There are very few differences from a normal game, but just enough differences to make it really annoying to support (mainly, items being moved around). So it's not supported and currently not planned to be supported. However linked items will be added to the pool at some point.
+
+</Card.Body>
+
 <Card.Header><h2>For more information, see:</h2></Card.Header>
 <Card.Body>
 
-- More detailed notes for {ngLink("ages", "doc/ages_notes.md")} and {ngLink("seasons", "doc/seasons_notes.md")}.
+- More detailed notes for <NgLink text="ages" link="doc/ages_notes.md" version={props.version}/> and <NgLink text="seasons" link="doc/seasons_notes.md" version={props.version}/>.
 - The [changelog](https://github.com/Stewmath/oracles-randomizer-ng/blob/master/CHANGELOG) for oracles-randomizer-ng.
-- {ngLink("A comparison of jangler's randomizer with oracles-randomizer-ng", "/doc/ng_differences.md")}.
+- <NgLink text="A comparison of jangler's randomizer with oracles-randomizer-ng" link="/doc/ng_differences.md" version={props.version}/>.
 - If you have more questions, [join the discord](https://discord.gg/FcdGMWC) and you'll be sure to find some helpful people who'll answer them!
 
 </Card.Body>

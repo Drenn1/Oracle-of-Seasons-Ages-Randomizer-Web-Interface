@@ -39,7 +39,7 @@ class App extends Component {
               <Route exact path = "/" Component={this.passVersion(Home)} />
               <Route exact path = "/randomize" Component={this.passVersion(Randomize)} />
               <Route path = "/seed/:game/:seed" Component={Seed} />
-              <Route path = "/info" Component={Info} />
+              <Route path = "/info" Component={this.passVersion(Info)} />
               <Route path = "/music" Component={Music} />
             </Routes>
             <Footer version={this.state.version}/>
