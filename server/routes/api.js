@@ -441,7 +441,7 @@ router.post('/patch/:game/:id', (req,res)=>{
           }
           console.log(`Patching animation ${label}`);
           const addr = symbols[label];
-          for (i=0; i<data.length; i++) {
+          for (let i=0; i<data.length; i++) {
             patchByte(addr + i, data[i]);
           }
         }
