@@ -17,7 +17,7 @@ function finalize(rom_array, romName){
   rom_array[0x14e] = checksum >> 8;
   rom_array[0x14f] = checksum & 0xff;
 
-  const finishedRom = new Blob([rom_array]);
+  const finishedRom = new Blob([rom_array], { type: 'application/octet-stream' });
   Saver.saveAs(finishedRom, `${romName}.gbc`);
 }
 
