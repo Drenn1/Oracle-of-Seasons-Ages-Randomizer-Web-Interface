@@ -139,3 +139,8 @@ zoroark:
   defaultPalette: 2
   display: "Zoroark"
   contributor: "Snow"
+
+zora:
+  defaultPalette: 1
+  display: "Zora"
+  contributor: "Mechsrule1"
