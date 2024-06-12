@@ -65,10 +65,12 @@ def genSpriteImage(name):
     img = img.resize((16 * IMAGE_SCALE, 16 * IMAGE_SCALE), resample=Image.NEAREST)
 
     outFile = open(outFilename, 'wb')
-    img.save(outFile, palette=PALETTES[paletteIndex])
+    img.save(outFile, palette=PALETTES[paletteIndex], transparency=3)
     outFile.close()
 
 for sprite in spriteConfig:
+    if sprite == 'random':
+        continue
     print(f'Generating sprite preview for {sprite}...', end='')
     genSpriteImage(sprite)
     print(' OK')
