@@ -33,9 +33,9 @@ Place the clean roms "ages_clean.gbc" and "seasons_clean.gbc" in the "roms/" dir
 Then run the following commands:
 
 ```
-./setup.sh build-docker # Build docker containers, should only need to do this once
-./setup.sh build-rando  # Build oracles-randomizer-ng and base roms
-./setup.sh start        # Run the webui on port 80
+./setup.sh build-docker      # Build docker containers, should only need to do this once
+./setup.sh build-rando-clean # Build oracles-randomizer-ng and base roms
+./setup.sh start             # Run the webui on port 80
 ```
 
 Do not run the commands as root, npm will complain (sudo should be fine).

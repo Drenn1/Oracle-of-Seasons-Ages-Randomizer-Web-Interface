@@ -26,6 +26,8 @@ function help() {
     echo
     echo "build-rando: Build oracles-randomizer-ng and oracles-disasm."
     echo
+    echo "build-rando-clean: Like above but do a clean build, recommended when deploying updates."
+    echo
     echo "start: Start the webui server."
     echo
     echo "stop: Stop the webui server."
@@ -39,6 +41,20 @@ if [[ $# < 1 ]]; then
     help
     exit 1
 fi
+
+function build-rando() {
+    printStage "Building disassembly..."
+    sudo docker run --user $(id -u) \
+        --mount type=bind,src=$PWD/oracles-randomizer-ng/oracles-disasm,dst=/mnt \
+        $ASSEMBLER_IMAGE "MAKEFLAGS=-j${THREADS} make" || exit 1
+
+    printStage "Building randomizer..."
+    sudo docker run --user $(id -u) --mount type=bind,src=$PWD,dst=/mnt \
+        $ASSEMBLER_IMAGE "cd oracles-randomizer-ng && go generate && go build" || exit 1
+
+    printStage "Randomizer build complete!"
+    echo "You should be able to run the server now."
+}
 
 case $1 in
     build-docker)
@@ -78,17 +94,19 @@ case $1 in
         echo "Requesting superuser access..."
         sudo echo "Got superuser access" || exit 1
 
-        printStage "Building disassembly..."
+        build-rando
+        ;;
+
+    build-rando-clean)
+        echo "Requesting superuser access..."
+        sudo echo "Got superuser access" || exit 1
+
+        printStage "Cleaning disassembly..."
         sudo docker run --user $(id -u) \
             --mount type=bind,src=$PWD/oracles-randomizer-ng/oracles-disasm,dst=/mnt \
-            $ASSEMBLER_IMAGE "MAKEFLAGS=-j${THREADS} make" || exit 1
+            $ASSEMBLER_IMAGE "make clean" || exit 1
 
-        printStage "Building randomizer..."
-        sudo docker run --user $(id -u) --mount type=bind,src=$PWD,dst=/mnt \
-            $ASSEMBLER_IMAGE "cd oracles-randomizer-ng && go generate && go build" || exit 1
-
-        printStage "Randomizer build complete!"
-        echo "You should be able to run the server now."
+        build-rando
         ;;
 
     start)
