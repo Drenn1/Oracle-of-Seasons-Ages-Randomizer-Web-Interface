@@ -21,6 +21,7 @@ class Home extends Component {
             <p>A number of different forks exist of the randomizer, which can cause some confusion. I recommend using one of the following:</p>
             <ul>
               <li>Oracles-Randomizer-NG <b>(this one!)</b>: An overhaul of Jangler's original randomizer by Stewmat, with advanced & experimental features such as cross-items, keysanity, music randomization, custom sprites, and more.</li>
+              <li><a href="https://archipelago.gg/">Archipelago</a>: Oracles support is in development for the multi-game randomizer, Archipelago. Development is active and vibrant, and it has a lot of new and exciting features even for single-player games! See the discord's development channels for more information.</li>
               <li><a href="https://oracles-dev.gwaa.kiwi/generate">Oracles-Randomizer-NG-Plus</a>: A fork of Oracles-Randomizer-NG by Karafruit with more experimental features. Has most features from NG, but development has diverged at the time of writing.</li>
             </ul>
 
